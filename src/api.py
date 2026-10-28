@@ -220,5 +220,6 @@ if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
     @app.get("/")
+    @app.get("/index.html")
     def serve_frontend():
         return FileResponse(STATIC_DIR / "index.html")

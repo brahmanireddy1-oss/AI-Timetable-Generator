@@ -176,12 +176,17 @@ pytest -v
 
 ### Step 5: Start the Web Playground & REST API
 ```bash
-uvicorn src.api:app --reload --port 8000
+# Recommended launcher:
+python run_server.py
+
+# Or directly using uvicorn:
+uvicorn src.api:app --host 127.0.0.1 --port 8000 --reload
 ```
-Open [http://localhost:8000](http://localhost:8000) in your browser to:
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000) or [http://localhost:8000](http://localhost:8000) in your browser to:
 - Test voice conversations with the telephone simulator in English, Telugu, or Hindi.
 - Search routes with stop-by-stop visual timelines.
 - Inspect LiveKit SIP trunk configs.
+*(Note: If `localhost` fails to resolve due to Windows IPv6 default lookup, navigate directly to `http://127.0.0.1:8000`).*
 
 ### Step 6: Run Voice Agent in Standalone Simulation Mode
 ```bash
