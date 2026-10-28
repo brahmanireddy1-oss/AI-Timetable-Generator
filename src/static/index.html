@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BusMate AI — Multilingual Hyderabad Bus Route Assistant</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+Telugu:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Header -->
+    <header class="top-header">
+      <div class="brand">
+        <div class="logo-icon">🚌</div>
+        <div>
+          <h1>BusMate AI <span class="badge-mock">MOCK DATA</span></h1>
+          <p class="tagline">Multilingual Telephone Voice Assistant for Hyderabad City Buses (TGSRTC Demo)</p>
+        </div>
+      </div>
+      <div class="header-status">
+        <span class="status-indicator active"></span>
+        <span class="status-text">Gemini Live + LiveKit Agents</span>
+      </div>
+    </header>
+
+    <!-- Disclaimer Banner -->
+    <div class="disclaimer-banner">
+      <span class="banner-icon">⚠️</span>
+      <span class="banner-text"><strong>Demonstration Prototype:</strong> All route numbers (DEMO-xxx), fares, and schedules are synthetic demonstration data for testing BusMate AI and do NOT represent verified official TGSRTC operations.</span>
+    </div>
+
+    <!-- Main Grid -->
+    <main class="main-grid">
+      <!-- Left Column: Interactive Phone Call Simulation -->
+      <section class="card phone-card">
+        <div class="card-header">
+          <h2>📞 Telephone Call Simulator</h2>
+          <span class="phone-number">+91-40-MOCKBUS</span>
+        </div>
+
+        <div class="call-display">
+          <div class="call-meta">
+            <span class="call-badge">SIP Inbound Call</span>
+            <span id="call-timer" class="call-timer">00:00</span>
+            <span id="detected-lang-pill" class="lang-pill">English</span>
+          </div>
+
+          <div id="chat-messages" class="chat-messages">
+            <div class="message system">
+              <p>🔔 Call Connected. Audio channel active.</p>
+            </div>
+            <div class="message agent">
+              <span class="speaker-label">BusMate AI:</span>
+              <p>Namaskaram! Welcome to BusMate AI, your Hyderabad bus information assistant. You can speak in Telugu, English, or Hindi. Where would you like to travel from and to?</p>
+            </div>
+          </div>
+
+          <div class="quick-prompts">
+            <span class="prompts-label">Try sample queries:</span>
+            <div class="prompt-chips">
+              <button class="chip" onclick="sendPrompt('Which bus should I take from Tukkuguda to Mehdipatnam?')">🇬🇧 Tukkuguda to Mehdipatnam</button>
+              <button class="chip" onclick="sendPrompt('తుక్కుగూడ నుంచి మెహదీపట్నం ఎలా వెళ్లాలి?')">🇮🇳 తుక్కుగూడ ➔ మెహదీపట్నం</button>
+              <button class="chip" onclick="sendPrompt('मुझे तुक्कुगुड़ा से मेहदीपट्टनम जाना है।')">🇮🇳 तुक्कुगुड़ा ➔ मेहदीपट्टनम</button>
+              <button class="chip" onclick="sendPrompt('Is there a direct bus from LB Nagar to Mehdipatnam?')">🔄 Direct bus check</button>
+              <button class="chip" onclick="sendPrompt('When is the next bus from Tukkuguda?')">⏰ Next bus timing</button>
+              <button class="chip" onclick="sendPrompt('What is the fare from Tukkuguda to Mehdipatnam?')">💰 Fare check</button>
+            </div>
+          </div>
+
+          <form id="call-form" class="call-controls" onsubmit="handleSend(event)">
+            <input type="text" id="user-input" placeholder="Speak or type your destination (English / తెలుగు / हिंदी)..." autocomplete="off" required>
+            <button type="button" id="mic-btn" class="btn-mic" title="Voice Input" onclick="toggleVoiceInput()">🎙️</button>
+            <button type="submit" class="btn-send">Send</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- Right Column: Route Planner & Network Details -->
+      <section class="card route-card">
+        <div class="card-header">
+          <h2>🗺️ Route Search & Explorer</h2>
+          <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('search')">Search Route</button>
+            <button class="tab-btn" onclick="switchTab('stops')">Bus Stops</button>
+            <button class="tab-btn" onclick="switchTab('telephony')">SIP Telephony</button>
+          </div>
+        </div>
+
+        <!-- Search Tab -->
+        <div id="tab-search" class="tab-content active">
+          <div class="search-form-row">
+            <div class="form-group">
+              <label for="search-source">Source Stop (బోర్డింగ్):</label>
+              <select id="search-source" onchange="autoSearch()">
+                <option value="S001">Tukkuguda (తుక్కుగూడ)</option>
+                <option value="S002">Mehdipatnam (మెహదీపట్నం)</option>
+                <option value="S003">LB Nagar (ఎల్బీ నగర్)</option>
+                <option value="S004">Aramghar (ఆరంఘర్)</option>
+                <option value="S005">Secunderabad Station (సికింద్రాబాద్)</option>
+                <option value="S006">Koti (కోటి)</option>
+                <option value="S007">Hitec City (హైటెక్ సిటీ)</option>
+                <option value="S008">Charminar (చార్మినార్)</option>
+                <option value="S009">Gachibowli (గచ్చిబౌలి)</option>
+                <option value="S010">MGBS (మహాత్మా గాంధీ బస్ స్టేషన్)</option>
+                <option value="S013">Lakdikapul (లక్డీకాపూల్)</option>
+                <option value="S014">Uppal (ఉప్పల్)</option>
+                <option value="S015">Shamshabad (శంషాబాద్)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="search-dest">Destination Stop (దిగే స్టాప్):</label>
+              <select id="search-dest" onchange="autoSearch()">
+                <option value="S002" selected>Mehdipatnam (మెహదీపట్నం)</option>
+                <option value="S001">Tukkuguda (తుక్కుగూడ)</option>
+                <option value="S003">LB Nagar (ఎల్బీ నగర్)</option>
+                <option value="S004">Aramghar (ఆరంఘర్)</option>
+                <option value="S005">Secunderabad Station (సికింద్రాబాద్)</option>
+                <option value="S006">Koti (కోటి)</option>
+                <option value="S007">Hitec City (హైటెక్ సిటీ)</option>
+                <option value="S008">Charminar (చార్మినార్)</option>
+                <option value="S009">Gachibowli (గచ్చిబౌలి)</option>
+                <option value="S010">MGBS (మహాత్మా గాంధీ బస్ స్టేషన్)</option>
+                <option value="S013">Lakdikapul (లక్డీకాపూల్)</option>
+                <option value="S014">Uppal (ఉప్పల్)</option>
+                <option value="S015">Shamshabad (శంషాబాద్)</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="search-results" class="search-results">
+            <div class="result-placeholder">
+              <p>Select source and destination to view mock bus options.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stops Tab -->
+        <div id="tab-stops" class="tab-content">
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Stop ID</th>
+                  <th>English</th>
+                  <th>Telugu (తెలుగు)</th>
+                  <th>Hindi (हिंदी)</th>
+                  <th>Locality</th>
+                </tr>
+              </thead>
+              <tbody id="stops-tbody">
+                <!-- Dynamically loaded -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SIP Telephony Tab -->
+        <div id="tab-telephony" class="tab-content">
+          <div class="telephony-details">
+            <h3>LiveKit SIP Telephone Trunk Setup</h3>
+            <p>Callers dial the inbound number via telecom providers (Twilio, Telnyx, or Tata SIP Trunk) which forwards SIP audio to LiveKit Cloud:</p>
+            <div class="code-box">
+              <pre>Inbound Phone: +91-40-MOCKBUS
+SIP Trunk ID:  ST_mock_tgsrtc_inbound
+Dispatch Rule: DR_mock_dispatch (Individual Room Dispatch)
+Room Pattern:  busmate-call-{call_id}
+Audio Codec:   Opus / PCMU (G.711)
+Gemini Model:  gemini-2.0-flash-exp (Multimodal Live Realtime)</pre>
+            </div>
+            <h4>Sample TwiML Forwarding:</h4>
+            <div class="code-box">
+              <pre>&lt;Response&gt;
+  &lt;Dial&gt;
+    &lt;Sip&gt;sip:busmate@sip.livekit.cloud&lt;/Sip&gt;
+  &lt;/Dial&gt;
+&lt;/Response&gt;</pre>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>BusMate AI — Hyderabad City Bus Route Voice Assistant • Built with Gemini Live, LiveKit Agents, & FastAPI • All route data is synthetic demonstration data.</p>
+    </footer>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

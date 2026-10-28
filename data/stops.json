@@ -1,0 +1,197 @@
+[
+  {
+    "id": "S001",
+    "name": "Tukkuguda",
+    "aliases": ["Tukkuguda", "Tukuguda", "Tukkuguda X Road", "Fab City", "ORR Exit 14"],
+    "supported_languages": {
+      "en": "Tukkuguda",
+      "te": "తుక్కుగూడ",
+      "hi": "तुक्कुगुड़ा"
+    },
+    "locality": "Outer Ring Road / Maheshwaram",
+    "landmark": "Near ORR Exit 14 / Wonderla turn-off",
+    "coordinates": {"lat": 17.2289, "lng": 78.4831}
+  },
+  {
+    "id": "S002",
+    "name": "Mehdipatnam",
+    "aliases": ["Mehdipatnam", "Mehdi Patnam", "Mehdipatnam Bus Depot", "Rythu Bazar", "Sarojini Devi Eye Hospital"],
+    "supported_languages": {
+      "en": "Mehdipatnam",
+      "te": "మెహదీపట్నం",
+      "hi": "मेहदीपट्टनम"
+    },
+    "locality": "South-West Hyderabad",
+    "landmark": "PVNR Expressway Pillar 45 / Rythu Bazar",
+    "coordinates": {"lat": 17.3916, "lng": 78.4419}
+  },
+  {
+    "id": "S003",
+    "name": "LB Nagar",
+    "aliases": ["LB Nagar", "L.B. Nagar", "Lal Bahadur Nagar", "LB Nagar X Road", "LB Nagar Metro", "Kamineni"],
+    "supported_languages": {
+      "en": "LB Nagar",
+      "te": "ఎల్బీ నగర్",
+      "hi": "एलबी नगर"
+    },
+    "locality": "East Hyderabad",
+    "landmark": "LB Nagar Ring Road Circle / Metro Station",
+    "coordinates": {"lat": 17.3457, "lng": 78.5522}
+  },
+  {
+    "id": "S004",
+    "name": "Aramghar",
+    "aliases": ["Aramghar", "Aram Ghar", "Aramghar X Road", "Pillar 300", "Mailardevpally"],
+    "supported_languages": {
+      "en": "Aramghar",
+      "te": "ఆరంఘర్",
+      "hi": "आरामघर"
+    },
+    "locality": "Rajendranagar",
+    "landmark": "NH 44 & PVNR Expressway Junction Pillar 315",
+    "coordinates": {"lat": 17.3193, "lng": 78.4358}
+  },
+  {
+    "id": "S005",
+    "name": "Secunderabad Station",
+    "aliases": ["Secunderabad", "Secunderabad Station", "Secunderabad Railway Station", "Rathifile Bus Station", "Patny"],
+    "supported_languages": {
+      "en": "Secunderabad Station",
+      "te": "సికింద్రాబాద్ స్టేషన్",
+      "hi": "सिकंदराबाद स्टेशन"
+    },
+    "locality": "Secunderabad",
+    "landmark": "Main Railway Station & Rathifile Terminus",
+    "coordinates": {"lat": 17.4334, "lng": 78.5016}
+  },
+  {
+    "id": "S006",
+    "name": "Koti",
+    "aliases": ["Koti", "Koti Bus Stand", "Koti Women's College", "Koti Andhra Bank", "Sultan Bazar"],
+    "supported_languages": {
+      "en": "Koti",
+      "te": "కోటి",
+      "hi": "कोटी"
+    },
+    "locality": "Central Hyderabad",
+    "landmark": "Koti Bus Terminus / Women's College",
+    "coordinates": {"lat": 17.3833, "lng": 78.4867}
+  },
+  {
+    "id": "S007",
+    "name": "Hitec City",
+    "aliases": ["Hitec City", "Cyber Towers", "Madhapur", "Mindspace", "HITEC"],
+    "supported_languages": {
+      "en": "Hitec City",
+      "te": "హైటెక్ సిటీ",
+      "hi": "हाईटेक सिटी"
+    },
+    "locality": "Cyberabad / Madhapur",
+    "landmark": "Cyber Towers Junction & Metro Station",
+    "coordinates": {"lat": 17.4504, "lng": 78.3808}
+  },
+  {
+    "id": "S008",
+    "name": "Charminar",
+    "aliases": ["Charminar", "Madina", "Old City", "Shah Ali Banda", "Gulzar Houz"],
+    "supported_languages": {
+      "en": "Charminar",
+      "te": "చార్మినార్",
+      "hi": "चारमीनार"
+    },
+    "locality": "Old City Hyderabad",
+    "landmark": "Historic Charminar Monument Bus Stand",
+    "coordinates": {"lat": 17.3616, "lng": 78.4747}
+  },
+  {
+    "id": "S009",
+    "name": "Gachibowli",
+    "aliases": ["Gachibowli", "Gachibowli Stadium", "Gachibowli X Road", "Financial District", "DLF"],
+    "supported_languages": {
+      "en": "Gachibowli",
+      "te": "గచ్చిబౌలి",
+      "hi": "गच्चीबाउली"
+    },
+    "locality": "Gachibowli",
+    "landmark": "Gachibowli Flyover / Stadium Junction",
+    "coordinates": {"lat": 17.4401, "lng": 78.3489}
+  },
+  {
+    "id": "S010",
+    "name": "MGBS",
+    "aliases": ["MGBS", "Imlibun", "Mahatma Gandhi Bus Station", "Central Bus Station", "Imlibun Bus Stand"],
+    "supported_languages": {
+      "en": "MGBS",
+      "te": "మహాత్మా గాంధీ బస్ స్టేషన్ (MGBS)",
+      "hi": "महात्मा गांधी बस स्टेशन (MGBS)"
+    },
+    "locality": "Gowliguda / Musi River",
+    "landmark": "Imlibun Island Central Bus Terminus",
+    "coordinates": {"lat": 17.3783, "lng": 78.4812}
+  },
+  {
+    "id": "S011",
+    "name": "Dilsukhnagar",
+    "aliases": ["Dilsukhnagar", "Dilsukh Nagar", "Dilsukhnagar Bus Depot", "Malakpet", "Chaitanyapuri"],
+    "supported_languages": {
+      "en": "Dilsukhnagar",
+      "te": "దిల్‌సుఖ్‌నగర్",
+      "hi": "दिलसुखनगर"
+    },
+    "locality": "South-East Hyderabad",
+    "landmark": "Dilsukhnagar Metro & Bus Depot",
+    "coordinates": {"lat": 17.3688, "lng": 78.5247}
+  },
+  {
+    "id": "S012",
+    "name": "Jubilee Bus Station (JBS)",
+    "aliases": ["JBS", "Jubilee Bus Station", "JBS Parade Ground", "Secunderabad North"],
+    "supported_languages": {
+      "en": "Jubilee Bus Station (JBS)",
+      "te": "జేబీఎస్ (జూబ్లీ బస్ స్టేషన్)",
+      "hi": "जेबीएस (जुबली बस स्टेशन)"
+    },
+    "locality": "Secunderabad Cantonment",
+    "landmark": "Parade Ground & JBS Terminus",
+    "coordinates": {"lat": 17.4474, "lng": 78.4984}
+  },
+  {
+    "id": "S013",
+    "name": "Lakdikapul",
+    "aliases": ["Lakdikapul", "Lakdi Ka Pul", "Assembly", "Global Hospital", "Saifabad"],
+    "supported_languages": {
+      "en": "Lakdikapul",
+      "te": "లక్డీకాపూల్",
+      "hi": "लकड़ी का पुल"
+    },
+    "locality": "Central Hyderabad",
+    "landmark": "Lakdikapul Railway Station & Assembly Metro",
+    "coordinates": {"lat": 17.4042, "lng": 78.4636}
+  },
+  {
+    "id": "S014",
+    "name": "Uppal",
+    "aliases": ["Uppal", "Uppal Ring Road", "Uppal X Road", "Uppal Stadium", "Uppal Metro"],
+    "supported_languages": {
+      "en": "Uppal",
+      "te": "ఉప్పల్",
+      "hi": "उप्पल"
+    },
+    "locality": "East Hyderabad",
+    "landmark": "Uppal Crossroads & Rajiv Gandhi Stadium",
+    "coordinates": {"lat": 17.4022, "lng": 78.5604}
+  },
+  {
+    "id": "S015",
+    "name": "Shamshabad",
+    "aliases": ["Shamshabad", "Airport Approach", "Shamshabad Bus Stop", "Rajiv Gandhi Airport Circle"],
+    "supported_languages": {
+      "en": "Shamshabad",
+      "te": "శంషాబాద్",
+      "hi": "शमशाबाद"
+    },
+    "locality": "South Hyderabad",
+    "landmark": "Shamshabad Old Town Bus Stand / NH 44",
+    "coordinates": {"lat": 17.2608, "lng": 78.4285}
+  }
+]
