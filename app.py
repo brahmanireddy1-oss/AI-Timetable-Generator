@@ -8,6 +8,18 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
+import importlib
+import database
+import timetable_generator
+import utils
+
+try:
+    importlib.reload(database)
+    importlib.reload(timetable_generator)
+    importlib.reload(utils)
+except Exception:
+    pass
+
 from database import DatabaseManager
 from timetable_generator import TimetableOptimizer, parse_natural_language_adjustment
 from utils import (
