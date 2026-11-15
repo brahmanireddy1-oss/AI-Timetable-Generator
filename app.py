@@ -1919,8 +1919,8 @@ elif menu == "📊 Analytics & Dashboard":
 elif menu == "📁 Data Management":
     st.subheader("📁 Academic Data Management & Faculty Availability")
 
-    tab_dm_fac, tab_dm_course, tab_dm_room, tab_dm_std, tab_dm_avail, tab_dm_sb = st.tabs([
-        "👨‍🏫 Faculty", "📚 Courses", "🏫 Classrooms", "🎓 Students & Cohorts", "🗓️ Faculty Availability Matrix", "🔌 Supabase Settings"
+    tab_dm_fac, tab_dm_course, tab_dm_room, tab_dm_std, tab_dm_avail = st.tabs([
+        "👨‍🏫 Faculty", "📚 Courses", "🏫 Classrooms", "🎓 Students & Cohorts", "🗓️ Faculty Availability Matrix"
     ])
 
     with tab_dm_fac:
@@ -1961,20 +1961,3 @@ elif menu == "📁 Data Management":
                     db.set_faculty_availability(sel_fac, t_day, t_period, is_av)
                     st.success(f"Updated {sel_fac} {t_day} {t_period} to {is_av}!")
                     st.rerun()
-
-    with tab_dm_sb:
-        st.markdown("#### Supabase PostgreSQL Integration")
-        sb_connected, sb_msg = db.is_supabase_connected()
-        st.write(f"**Connection Status:** {sb_msg}")
-        with st.form("sb_keys_form"):
-            new_url = st.text_input("SUPABASE_URL", value=os.environ.get("SUPABASE_URL", ""))
-            new_key = st.text_input("SUPABASE_KEY", value=os.environ.get("SUPABASE_KEY", ""), type="password")
-            if st.form_submit_button("Save Credentials to .env"):
-                os.environ["SUPABASE_URL"] = new_url.strip()
-                os.environ["SUPABASE_KEY"] = new_key.strip()
-                with open(".env", "w") as f:
-                    f.write(f"SUPABASE_URL={new_url.strip()}\n")
-                    f.write(f"SUPABASE_KEY={new_key.strip()}\n")
-                st.session_state.db = DatabaseManager()
-                st.success("Credentials saved!")
-                st.rerun()
