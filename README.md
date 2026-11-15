@@ -1,214 +1,249 @@
-# BusMate AI — Multilingual Voice-Based Bus Route Assistant
+# AI-Based Timetable Generation System aligned with NEP 2020 for Multidisciplinary Education Structures
 
-> **Hyderabad City Bus Voice Information Assistant (TGSRTC Mock Prototype)**  
-> Built with **Gemini Live**, **LiveKit Agents**, **LiveKit SIP**, and **FastAPI**.
-
----
-
-## ⚠️ Important Disclaimer on Mock Data
-
-**All transit route numbers (e.g., `DEMO-101`), schedules, fares, and stop arrival times in this prototype are synthetic demonstration data created for testing BusMate AI.**  
-Never present fictional routes or timings as verified official TGSRTC information. In production, this layer connects directly to official TGSRTC GTFS-Realtime feeds or municipal transit APIs.
+An enterprise-grade, constraint-optimized academic scheduling platform developed for undergraduate and multidisciplinary higher education institutions. Built in compliance with the **National Education Policy (NEP 2020)** guidelines, this system automates conflict-free timetable generation across departments, major and minor subjects, open electives, interdisciplinary courses, skill enhancement modules, and continuous laboratory blocks using **Google OR-Tools CP-SAT**.
 
 ---
 
-## 1. System Overview
+## 1. Project Overview
 
-BusMate AI is an inbound telephone-based voice assistant designed for Hyderabad commuters. A user dials a local phone number (`+91-40-MOCKBUS`) and asks natural questions such as:
+Higher education under NEP 2020 requires institutions to transition from rigid branch silos into flexible, multidisciplinary learning pathways. Students from Computer Science, Electronics, and Information Technology choose interdisciplinary electives, skill courses, and cross-departmental minors.
 
-- *"Which bus should I take from Tukkuguda to Mehdipatnam?"*
-- *"తుక్కుగూడ నుంచి మెహదీపట్నం ఎలా వెళ్లాలి?"*
-- *"मुझे तुक्कुगुड़ा से मेहदीपट्टनम जाना है।"*
-- *"Is there a direct bus?"*
-- *"Where should I board and alight?"*
-- *"Do I need to change buses?"*
-- *"What is the estimated fare and next departure time?"*
+Traditional manual or heuristic scheduling fails under this combinatorial complexity. This system formulates academic scheduling as a mathematical **Constraint Satisfaction Problem (CSP)** solved using **Google OR-Tools CP-SAT**:
 
-```mermaid
-flowchart TD
-    Caller["📞 Telephone Caller\n(English / Telugu / Hindi)"]
-    Telco["Telephony Provider / PBX\n(Twilio / Telnyx / Tata)"]
-    SIP["LiveKit SIP Inbound Trunk\n(ST_mock_tgsrtc_inbound)"]
-    Dispatch["SIP Dispatch Rule\n(DR_mock_dispatch)"]
-    Room["LiveKit Audio Room\n(busmate-call-{id})"]
-    Agent["BusMate AI Agent Worker\n(LiveKit Agents)"]
-    Gemini["Google Gemini Live API\n(gemini-2.0-flash-exp)"]
-    Search["Route Search Engine\n(Fuzzy Aliases & Graph Transit)"]
-    MockData[("Mock Transit Data\nstops.json | routes.json | aliases.json")]
+- **Multidisciplinary Electives:** Resolves clashes among students taking cross-departmental courses (e.g., CSE students taking Cloud Computing from IT, ECE students taking Machine Learning).
+- **Laboratory Continuity:** Enforces strict 2-period contiguous blocks (P1-P2, P3-P4, P5-P6) without fragmenting across the institutional lunch recess (12:30 – 13:30).
+- **Resource Balancing:** Satisfies hard faculty availability and classroom capacity bounds while softly balancing faculty workload and minimizing student timetable gaps.
+- **Dynamic Re-optimization:** Supports dynamic regeneration with session diff visualization when faculty availability or room constraints change.
+- **Auditing & Governance:** Features independent 8-point rule verification, audit scoring, and a multi-stage approval workflow (`Draft` -> `Approved` -> `Published`).
 
-    Caller -->|PSTN Phone Call| Telco
-    Telco -->|SIP Forwarding| SIP
-    SIP -->|Dispatch Rule| Dispatch
-    Dispatch -->|Auto-create| Room
-    Agent -->|Joins Audio Room| Room
-    Agent <-->|Real-time Audio Stream| Gemini
-    Gemini -->|Function Calling Tools| Search
-    Search <-->|Query| MockData
-    Agent -->|Synthesized Voice Speech| Caller
+---
+
+## 2. Technology Stack
+
+| Component | Technology | Role |
+| :--- | :--- | :--- |
+| **Frontend & UI** | Python 3.12 + Streamlit | Single-page reactive academic administration console |
+| **Optimization Engine** | Google OR-Tools CP-SAT | Exact constraint programming solver for NP-hard scheduling |
+| **Cloud Database** | Supabase (PostgreSQL) | Managed relational database with foreign-key integrity |
+| **Local Fallback Engine** | SQLite3 (PRAGMA foreign_keys) | Fully functional offline mirrored storage for demos |
+| **Data Processing** | Pandas & NumPy | Cross-sheet dataframes, joins, and matrix transforms |
+| **Excel Handling** | OpenPyXL | Multi-worksheet validation, styling, and exports |
+| **PDF Generation** | ReportLab | Publication-ready landscape printable academic timetables |
+| **Visualization** | Plotly Express & Graph Objects | Interactive workload, room utilization, and donut charts |
+| **Testing** | Pytest | Automated end-to-end integration and constraint tests |
+
+---
+
+## 3. Project Folder Structure
+
+```text
+AI_Timetable_Generator/
+│
+├── app.py                     # Main Streamlit web application & UI navigation
+├── timetable_generator.py     # Google OR-Tools CP-SAT optimization engine
+├── database.py                # Database manager (Supabase + Local SQLite mirror)
+├── utils.py                   # Conflict validator, grid builder & PDF/Excel/TXT exports
+│
+├── data/
+│   └── AI_Timetable_Demo_Data.xlsx # Primary input workbook (9 NEP 2020 worksheets)
+│
+├── database/
+│   └── schema.sql             # Supabase PostgreSQL relational schema definition
+│
+├── tests/
+│   └── test_timetable.py      # Pytest automated test suite (10 unit/integration tests)
+│
+├── requirements.txt           # Python dependency specification
+├── README.md                  # Comprehensive documentation and demonstration guide
+├── .env.example               # Template for Supabase environment variables
+└── .gitignore                 # Version control exclusions
 ```
 
 ---
 
-## 2. Multilingual Voice Support
+## 4. Python Installation Requirements
 
-BusMate AI supports three primary languages with real-time detection, dynamic switching, and code-mixing acceptance:
+- **Python Version:** Python `3.10`, `3.11`, or `3.12` (64-bit recommended).
+- **OS:** Windows 10/11, macOS, or Linux.
 
-1. **English (Indian English)**
-2. **Telugu (తెలుగు)**
-3. **Hindi (हिंदी)**
-
-### Key Multilingual Features
-- **Opening Greeting:** Starts politely in welcoming English and Telugu:  
-  *"Namaskaram! Welcome to BusMate AI, your Hyderabad bus information assistant. You can speak in Telugu, English, or Hindi. Where would you like to travel from and to?"*
-- **Automatic Language Detection:** Inspects spoken utterances and responds in the caller's chosen language.
-- **Mid-Conversation Switching:** The caller can switch at any time (e.g. from English to *"Telugu lo cheppandi"* or *"Hindi mein bataiye"*).
-- **Code-Mixing (Tenglish / Hinglish):** Accurately understands English transit terms inside Telugu or Hindi sentences (*"Tukkuguda nunchi Mehdipatnam ki direct bus undha?"* or *"Mehdipatnam ke liye direct bus kab aayegi?"*).
-- **Hyderabad Phonetic Aliases:** Recognizes local place names and colloquial variants (e.g., *Imlibun* for *MGBS*, *Rathifile* for *Secunderabad Station*, *Cyber Towers* for *Hitec City*, *Pillar 300* for *Aramghar*).
-- **Telephone-Friendly Conciseness:** Keeps voice replies concise (2 to 3 sentences) to avoid overwhelming callers.
+Verify your installed Python version:
+```bash
+python --version
+```
 
 ---
 
-## 3. Mock Transit Dataset
+## 5. Dependency Installation
 
-Located in `data/`:
-- [`data/stops.json`](file:///d:/BRAHMANI/GSSOC/voice%20agent/data/stops.json): Hyderabad stops including Tukkuguda, Mehdipatnam, LB Nagar, Aramghar, Secunderabad Station, Koti, Hitec City, Charminar, Gachibowli, MGBS, Lakdikapul, Uppal, and Shamshabad.
-- [`data/routes.json`](file:///d:/BRAHMANI/GSSOC/voice%20agent/data/routes.json): Forward and return demonstration routes (e.g., `DEMO-101`, `DEMO-202`, `DEMO-303`, `DEMO-505`, `DEMO-606`, etc.) with schedules, frequencies, and fares.
-- [`data/aliases.json`](file:///d:/BRAHMANI/GSSOC/voice%20agent/data/aliases.json): Multilingual aliases in English, Telugu, Hindi, and common phonetic transliterations.
+1. Create and activate a Python virtual environment:
+   ```bash
+   # Windows (PowerShell)
+   python -m venv .venv
+   .\.venv\Scripts\Activate.ps1
 
----
+   # Linux / macOS
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
 
-## 4. Route Search Engine
-
-The core engine in [`src/search_engine.py`](file:///d:/BRAHMANI/GSSOC/voice%20agent/src/search_engine.py) provides:
-
-- `find_routes(source, destination)`:
-  - Resolves stops case-insensitively and fuzzy-matches aliases.
-  - Returns direct bus journeys (e.g., `DEMO-101` from Tukkuguda to Mehdipatnam).
-  - Finds 1-transfer connecting journeys when direct routes do not exist (e.g., Tukkuguda to Secunderabad Station via Mehdipatnam or Lakdikapul).
-  - Returns localized natural speech summaries in English, Telugu, and Hindi.
-- `get_route_details(route_id)`: Fetches route stops, timings, frequencies, and operating schedules.
-- `search_stops(query, language)`: Returns stop candidates ranked by Levenshtein confidence score.
-- `get_next_departures(route_id, stop_id, date_time)`: Computes the next scheduled bus arrival times.
-- `estimate_fare(route_ids, source, destination)`: Computes journey fares with explicit mock data disclaimers.
-
----
-
-## 5. Telephone & LiveKit SIP Integration
-
-BusMate AI is built on the LiveKit SIP architecture for PSTN telephony:
-
-1. **Inbound Trunk:** LiveKit SIP Inbound Trunk accepts phone calls on `+91-40-MOCKBUS`.
-2. **Dispatch Rule:** Directs inbound phone calls into isolated audio rooms (`busmate-call-<id>`).
-3. **Telephony Metadata:** Automatically parses caller phone number (`From`), trunk number (`To`), and SIP call IDs.
-4. **Third-Party Telephony Forwarding (Twilio / Telnyx):**
-   ```xml
-   <Response>
-       <Say voice="Polly.Aditi" language="en-IN">Connecting to BusMate AI.</Say>
-       <Dial>
-           <Sip>sip:busmate@sip.livekit.cloud</Sip>
-       </Dial>
-   </Response>
+2. Upgrade pip and install all required packages:
+   ```bash
+   pip install --upgrade pip
+   pip install -r requirements.txt
    ```
 
 ---
 
-## 6. Project Structure
+## 6. Supabase Project Setup (Cloud PostgreSQL)
 
+The system works **completely offline with SQLite** out of the box. To connect to a live Supabase PostgreSQL instance:
+
+1. Create a free account at [Supabase](https://supabase.com).
+2. Create a new project (e.g., `nep-timetable-system`).
+3. Under **Project Settings -> API**, copy:
+   - **Project URL**
+   - **Project API Keys** (`anon` or `service_role`).
+
+---
+
+## 7. SQL Schema Execution
+
+In your Supabase project:
+1. Open the **SQL Editor** from the left navigation.
+2. Click **New Query**.
+3. Copy and paste the entire contents of [`database/schema.sql`](database/schema.sql).
+4. Click **Run**. All 12 tables and performance indexes will be created.
+
+---
+
+## 8. Environment Variable Configuration
+
+Create a `.env` file in the root directory (or use `.env.example` as a template):
+
+```bash
+# Windows
+copy .env.example .env
+
+# Linux / macOS
+cp .env.example .env
 ```
-voice agent/
-├── data/
-│   ├── stops.json          # Hyderabad stop definitions & multilingual names
-│   ├── routes.json         # Mock bus route numbers, schedules, fares
-│   └── aliases.json        # Phonetic, Telugu, and Hindi stop aliases
-├── src/
-│   ├── __init__.py
-│   ├── config.py           # Environment variables & constants
-│   ├── models.py           # Pydantic data schemas
-│   ├── search_engine.py    # Route planner, fuzzy stop resolver & departures
-│   ├── agent.py            # LiveKit Agent & Gemini Live voice assistant
-│   ├── telephony.py        # LiveKit SIP trunks & dispatch rule manager
-│   ├── api.py              # FastAPI REST endpoints & simulation API
-│   └── static/             # Web testing playground & interactive UI
-│       ├── index.html
-│       ├── styles.css
-│       └── app.js
-├── tests/
-│   ├── test_search_engine.py # Unit tests for transit search engine
-│   ├── test_agent_tools.py   # Agent function calling & language detection
-│   └── test_api.py           # FastAPI endpoint integration tests
-├── .env.example            # Sample configuration
-├── requirements.txt        # Python package dependencies
-└── README.md
+
+Edit `.env` and fill in your Supabase credentials:
+```env
+SUPABASE_URL=https://your-project-id.supabase.co
+SUPABASE_KEY=your-supabase-anon-or-service-role-key
+```
+
+*(Note: If left blank or unconfigured, the application runs seamlessly in local mode without errors!)*
+
+---
+
+## 9. Primary Dataset: Excel Workbook (9 Worksheets)
+
+The primary dataset [`data/AI_Timetable_Demo_Data.xlsx`](data/AI_Timetable_Demo_Data.xlsx) contains 9 interconnected sheets:
+
+1. **`Departments`**: Department code and full name (CSE, ECE, IT).
+2. **`Students`**: 60 students categorized into 4 cohorts (`CSE2A`, `CSE2B`, `ECE2A`, `IT2A`).
+3. **`Courses`**: 18 NEP 2020 courses classified into Major, Laboratory, Open Elective, Interdisciplinary, and Skill Enhancement.
+4. **`Faculty`**: 12 faculty members with departmental affiliation and maximum weekly limits.
+5. **`Classrooms`**: 10 facilities categorized as Classrooms, Computer Labs, and Electronics Labs with exact capacities.
+6. **`Faculty_Availability`**: Period-by-period teaching availability across Monday to Friday.
+7. **`Student_Enrollments`**: 390 student course registrations demonstrating elective cross-enrollment.
+8. **`Time_Slots`**: 30 teaching slots per week (6 daily periods $\times$ 5 days).
+9. **`Constraints`**: Institutional working days, solver limits, and soft penalty weights.
+
+---
+
+## 10. Running the Application
+
+Launch the Streamlit web application with:
+
+```bash
+streamlit run app.py
+```
+
+The application will open automatically in your browser at:
+`http://localhost:8501`
+
+---
+
+## 11. Complete Step-by-Step Demonstration Workflow
+
+Follow these steps for a complete project evaluation or viva demonstration:
+
+1. **Dashboard Overview (`📊 Dashboard`):**
+   - View live statistics of departments, students, courses, faculty, and classrooms.
+   - Inspect NEP 2020 course category breakdown and classroom utilization charts.
+
+2. **Data Management (`📁 Data Management`):**
+   - Under *Excel Workbook Import*, click **"Reload Primary Demo Dataset"** or upload a customized `.xlsx` workbook.
+   - Preview individual worksheets.
+   - Inspect the *Faculty Availability Matrix* to see visual heatmaps of available slots.
+
+3. **Constraint Configuration (`⚙️ Constraint Configuration`):**
+   - Review the 10 hard constraints enforced by the mathematical solver.
+   - Adjust soft constraint weights (Faculty workload balance, Student gap reduction) and max solver time limit.
+
+4. **Generate Timetable (`⚡ Generate Timetable`):**
+   - Enter a version label (e.g., `NEP Schedule V1.0`).
+   - Click **"Run OR-Tools Optimization Solver"**.
+   - Watch the live progress as CP-SAT proves feasibility in seconds.
+   - Timetable is saved as **`Draft`**.
+
+5. **Timetable Views (`📅 View Timetable`):**
+   - Switch between **Department-wise**, **Faculty-wise**, **Student Group-wise**, and **Classroom-wise** views.
+   - View the formatted weekly schedule grid.
+   - Notice color badges for Laboratories (double blocks), Open Electives, and Interdisciplinary courses.
+
+6. **Independent Conflict Audit (`🛡️ Conflict Detection`):**
+   - Click the audit section to run an independent 8-point verification.
+   - Observe **100% Quality Score** and **0 Hard Conflicts**.
+
+7. **Dynamic Regeneration Simulation (`🔄 Dynamic Regeneration`):**
+   - Select a faculty member (e.g., `F001`) and mark them unavailable on a specific day/period.
+   - Click **"Trigger Regeneration"**.
+   - System re-runs OR-Tools, generates a new version (e.g. `V2.0`), and shows an automated **Session Relocation Diff Table** highlighting changed periods!
+
+8. **Governance & Approval (`✅ Approval & Publication`):**
+   - View the status of your timetable version (`Draft`).
+   - Click **"Approve Timetable"** (records auditor name and timestamp in the audit trail).
+   - Click **"Publish Timetable"** to make it officially accessible.
+
+9. **Multi-Format Export (`📥 Reports & Export`):**
+   - Select the desired timetable view (e.g. CSE Department, or Faculty Dr. Ananya Rao).
+   - Click **"Download PDF Timetable"** -> Generates a formatted landscape PDF with institutional header and signature blocks.
+   - Click **"Download Excel Workbook"** -> Generates a multi-sheet formatted workbook with styled cells.
+   - Click **"Download Text Timetable"** -> Generates an ASCII campus notice board file.
+
+---
+
+## 12. Automated Testing
+
+Run the automated Pytest test suite covering all 10 validation stages:
+
+```bash
+python -m pytest tests/test_timetable.py -v
+```
+
+**Expected Test Output:**
+```text
+tests/test_timetable.py::test_workbook_reading_and_validation PASSED     [ 10%]
+tests/test_timetable.py::test_database_counts PASSED                     [ 20%]
+tests/test_timetable.py::test_reference_integrity PASSED                 [ 30%]
+tests/test_timetable.py::test_constraint_configuration PASSED            [ 40%]
+tests/test_timetable.py::test_timetable_generation_cpsat PASSED          [ 50%]
+tests/test_timetable.py::test_independent_conflict_validation PASSED     [ 60%]
+tests/test_timetable.py::test_synthetic_faculty_clash_detection PASSED   [ 70%]
+tests/test_timetable.py::test_dynamic_regeneration_and_comparison PASSED [ 80%]
+tests/test_timetable.py::test_approval_and_publishing_workflow PASSED    [ 90%]
+tests/test_timetable.py::test_export_formats PASSED                      [100%]
+
+============================= 10 passed in 47.93s =============================
 ```
 
 ---
 
-## 7. Quickstart & Installation
+## 13. License & Academic Attribution
 
-### Step 1: Set Up Python Virtual Environment
-```bash
-python -m venv .venv
-# On Windows:
-.\.venv\Scripts\activate
-# On Linux/macOS:
-source .venv/bin/activate
-```
-
-### Step 2: Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### Step 3: Configure Environment Variables
-Copy `.env.example` to `.env` and provide your API keys:
-```bash
-cp .env.example .env
-```
-Key variables:
-- `GEMINI_API_KEY`: Your Google Gemini API key.
-- `LIVEKIT_URL`: LiveKit Cloud WebSocket URL (`wss://...`).
-- `LIVEKIT_API_KEY` & `LIVEKIT_API_SECRET`: LiveKit project credentials.
-
-### Step 4: Run Test Suite
-```bash
-pytest -v
-```
-
-### Step 5: Start the Web Playground & REST API
-```bash
-# Recommended launcher:
-python run_server.py
-
-# Or directly using uvicorn:
-uvicorn src.api:app --host 127.0.0.1 --port 8000 --reload
-```
-Open [http://127.0.0.1:8000](http://127.0.0.1:8000) or [http://localhost:8000](http://localhost:8000) in your browser to:
-- Test voice conversations with the telephone simulator in English, Telugu, or Hindi.
-- Search routes with stop-by-stop visual timelines.
-- Inspect LiveKit SIP trunk configs.
-*(Note: If `localhost` fails to resolve due to Windows IPv6 default lookup, navigate directly to `http://127.0.0.1:8000`).*
-
-### Step 6: Run Voice Agent in Standalone Simulation Mode
-```bash
-python -m src.agent --simulate
-```
-Interactive terminal prompt:
-```text
-=== BusMate AI Interactive Voice Simulation Console ===
-Namaskaram! Welcome to BusMate AI, your Hyderabad bus information assistant. You can speak in Telugu, English, or Hindi. Where would you like to travel from and to?
-
-Caller: Which bus should I take from Tukkuguda to Mehdipatnam?
-BusMate AI (en): You can take direct bus DEMO-101 (City Ordinary (MOCK)) from Tukkuguda to Mehdipatnam. The journey takes approximately 50 minutes with a fare of 35 rupees. (Demo schedule)
-
-Caller: తుక్కుగూడ నుంచి మెహదీపట్నం ఎలా వెళ్లాలి?
-BusMate AI (te): తుక్కుగూడ నుంచి మెహదీపట్నం కు డైరెక్ట్ బస్సు DEMO-101 ఉంది. ప్రయాణ సమయం సుమారు 50 నిమిషాలు, ఛార్జీ 35 రూపాయలు.
-
-Caller: mujhe tukuguda se mehdipatnam jana hai
-BusMate AI (hi): तुक्कुगुड़ा से मेहदीपट्टनम के लिए सीधी बस DEMO-101 उपलब्ध है। सफ़र में लगभग 50 मिनट लगेंगे और किराया 35 रुपये है।
-```
-
-### Step 7: Launch LiveKit Real-Time Agent Worker
-```bash
-python -m src.agent dev
-```
-Listens for live SIP calls or WebRTC audio participants entering LiveKit rooms.
+Developed as a B.Tech Computer Science and Engineering Mini Project.
+Released under the MIT License for educational and institutional research purposes.
