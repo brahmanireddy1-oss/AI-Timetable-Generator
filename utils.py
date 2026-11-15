@@ -307,13 +307,16 @@ class ConflictValidator:
 
 def build_timetable_grid(entries_df: pd.DataFrame, view_type: str, filter_val: str,
                          students_df: Optional[pd.DataFrame] = None,
-                         enroll_df: Optional[pd.DataFrame] = None) -> pd.DataFrame:
+                         enroll_df: Optional[pd.DataFrame] = None,
+                         locked_sessions: Optional[Set[str]] = None,
+                         moved_sessions: Optional[Set[str]] = None) -> pd.DataFrame:
     """
     Constructs a 5-day x 6-period visual timetable grid based on view type:
     - Department-wise: filter_val = department_id
     - Faculty-wise: filter_val = faculty_id
     - Classroom-wise: filter_val = classroom_id
     - Student Group-wise: filter_val = student_group
+    Includes indicators for 🔒 Locked and ✨ Moved / Updated sessions.
     """
     grid = {p: {d: "" for d in DAYS_LIST} for p in PERIODS_LIST}
 
@@ -338,20 +341,32 @@ def build_timetable_grid(entries_df: pd.DataFrame, view_type: str, filter_val: s
 
     p_seq = {p: i for i, p in enumerate(PERIODS_LIST)}
     rev_p = {i: p for p, i in p_seq.items()}
+    locked_set = locked_sessions or set()
+    moved_set = moved_sessions or set()
 
     for _, row in filtered_entries.iterrows():
         day = row["day"]
         p_start = row["period_id"]
         dur = int(row["duration_periods"])
         c_code = row["course_id"]
+        sid = row.get("session_id", "")
         c_name = row.get("course_name", "")
         f_name = row.get("faculty_name", row["faculty_id"])
         room = row.get("classroom_name", row["classroom_id"])
         c_type = row.get("course_type", "")
 
+        is_locked = (sid in locked_set or c_code in locked_set)
+        is_moved = (sid in moved_set)
+
+        status_badge = ""
+        if is_moved:
+            status_badge = " <span style='background:#D1FAE5; color:#065F46; font-size:10px; font-weight:700; padding:1px 5px; border-radius:4px;'>✨ Moved</span>"
+        elif is_locked:
+            status_badge = " <span style='background:#FEE2E2; color:#991B1B; font-size:10px; font-weight:700; padding:1px 5px; border-radius:4px;'>🔒 Locked</span>"
+
         # Format cell content
         type_badge = f"[{c_type}]" if c_type else ""
-        content = f"**{c_code}** - {c_name}<br/>*{f_name}* | {room} {type_badge}"
+        content = f"**{c_code}**{status_badge} - {c_name}<br/>*{f_name}* | {room} {type_badge}"
 
         if day in DAYS_LIST and p_start in PERIODS_LIST:
             # Current cell
@@ -363,7 +378,7 @@ def build_timetable_grid(entries_df: pd.DataFrame, view_type: str, filter_val: s
                 p_idx = p_seq.get(p_start, 0)
                 p2 = rev_p.get(p_idx + 1)
                 if p2 and p2 in grid:
-                    lab_content = f"**{c_code} (Lab Contd.)**<br/>*{f_name}* | {room}"
+                    lab_content = f"**{c_code} (Lab Contd.)**{status_badge}<br/>*{f_name}* | {room}"
                     existing2 = grid[p2][day]
                     grid[p2][day] = f"{existing2}<hr style='margin:2px 0;'/>{lab_content}" if existing2 else lab_content
 
@@ -373,14 +388,17 @@ def build_timetable_grid(entries_df: pd.DataFrame, view_type: str, filter_val: s
     return df_grid
 
 def build_department_cohort_grid(entries_df: pd.DataFrame, target_dept: Optional[str],
-                                students_df: pd.DataFrame, enroll_df: pd.DataFrame) -> pd.DataFrame:
+                                students_df: pd.DataFrame, enroll_df: pd.DataFrame,
+                                locked_sessions: Optional[Set[str]] = None,
+                                moved_sessions: Optional[Set[str]] = None) -> pd.DataFrame:
     """
     Builds a clean 5-day x 6-period visual timetable grid tailored for specific student cohorts:
     - 'CSE': All courses attended by CSE students (30 students)
     - 'ECE': All courses attended by ECE students (15 students)
     - 'IT': All courses attended by IT students (15 students)
     - None or 'MULTI': Multidisciplinary & Open Electives across all departments
-    Includes course code, name, category, faculty, classroom, and exact registration counts.
+    Includes course code, name, category, faculty, classroom, exact registration counts,
+    and visual badges for 🔒 Locked slots and ✨ Moved / Updated slots.
     """
     grid = {p: {d: "<div style='color:#94A3B8; font-style:italic; font-size:11px; padding:8px 0;'>Free / Self-Study</div>" for d in DAYS_LIST} for p in PERIODS_LIST}
     if entries_df.empty:
@@ -403,16 +421,22 @@ def build_department_cohort_grid(entries_df: pd.DataFrame, target_dept: Optional
     sub = entries_df[entries_df["course_id"].isin(target_courses)]
     p_seq = {p: i for i, p in enumerate(PERIODS_LIST)}
     rev_p = {i: p for p, i in p_seq.items()}
+    locked_set = locked_sessions or set()
+    moved_set = moved_sessions or set()
 
     for _, r in sub.iterrows():
         d = r["day"]
         p = r["period_id"]
         dur = int(r["duration_periods"])
         cid = r["course_id"]
+        sid = r.get("session_id", "")
         cname = r.get("course_name", "")
         ctype = r.get("course_type", "")
         fname = r.get("faculty_name", r["faculty_id"])
         room = r.get("classroom_name", r["classroom_id"])
+
+        is_locked = (sid in locked_set or cid in locked_set)
+        is_moved = (sid in moved_set)
 
         tot = enr_counts.get(cid, 0)
         if target_dept:
@@ -433,13 +457,24 @@ def build_department_cohort_grid(entries_df: pd.DataFrame, target_dept: Optional
             badge_bg = "#EDE9FE"
             badge_fg = "#5B21B6"
 
+        # Determine border color & extra badges
+        if is_moved:
+            border_left = "4px solid #10B981"
+            status_badge_html = "<span style='background:#D1FAE5; color:#065F46; font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px; margin-left:4px; border:1px solid #6EE7B7;'>✨ Moved / Updated</span>"
+        elif is_locked:
+            border_left = "4px solid #DC2626"
+            status_badge_html = "<span style='background:#FEE2E2; color:#991B1B; font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px; margin-left:4px; border:1px solid #FCA5A5;'>🔒 Locked</span>"
+        else:
+            border_left = "4px solid #2563EB"
+            status_badge_html = ""
+
         card = (
-            f"<div style='background:#FFFFFF; border:1px solid #CBD5E1; border-left:4px solid #2563EB; "
+            f"<div style='background:#FFFFFF; border:1px solid #CBD5E1; border-left:{border_left}; "
             f"border-radius:6px; padding:6px; margin-bottom:5px; box-shadow:0 1px 2px rgba(0,0,0,0.04);'>"
             f"<div style='font-weight:700; color:#0F172A; font-size:12px;'>{cid} - {cname}</div>"
             f"<div style='font-size:11px; color:#475569;'><i>{ctype}</i> | {fname}</div>"
             f"<div style='font-size:11px; color:#1E3A8A; font-weight:600;'>🏛️ {room}</div>"
-            f"<div style='margin-top:3px;'><span style='background:{badge_bg}; color:{badge_fg}; font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px;'>{badge_text}</span></div>"
+            f"<div style='margin-top:4px;'><span style='background:{badge_bg}; color:{badge_fg}; font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px;'>{badge_text}</span>{status_badge_html}</div>"
             f"</div>"
         )
 
@@ -452,13 +487,14 @@ def build_department_cohort_grid(entries_df: pd.DataFrame, target_dept: Optional
             p_idx = p_seq.get(p, 0)
             p2 = rev_p.get(p_idx + 1)
             if p2 and p2 in grid:
+                lab_border = "4px solid #10B981" if is_moved else ("4px solid #DC2626" if is_locked else "4px solid #7C3AED")
                 card2 = (
-                    f"<div style='background:#FFFFFF; border:1px solid #CBD5E1; border-left:4px solid #7C3AED; "
+                    f"<div style='background:#FFFFFF; border:1px solid #CBD5E1; border-left:{lab_border}; "
                     f"border-radius:6px; padding:6px; margin-bottom:5px; box-shadow:0 1px 2px rgba(0,0,0,0.04);'>"
                     f"<div style='font-weight:700; color:#0F172A; font-size:12px;'>{cid} - {cname} (Lab Contd.)</div>"
                     f"<div style='font-size:11px; color:#475569;'><i>{ctype}</i> | {fname}</div>"
                     f"<div style='font-size:11px; color:#1E3A8A; font-weight:600;'>🏛️ {room}</div>"
-                    f"<div style='margin-top:3px;'><span style='background:{badge_bg}; color:{badge_fg}; font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px;'>{badge_text}</span></div>"
+                    f"<div style='margin-top:4px;'><span style='background:{badge_bg}; color:{badge_fg}; font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px;'>{badge_text}</span>{status_badge_html}</div>"
                     f"</div>"
                 )
                 if "Free / Self-Study" in grid[p2][d]:

@@ -9,7 +9,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 from database import DatabaseManager
-from timetable_generator import TimetableOptimizer
+from timetable_generator import TimetableOptimizer, parse_natural_language_adjustment
 from utils import (
     ConflictValidator,
     build_timetable_grid,
@@ -741,6 +741,16 @@ if "db" not in st.session_state:
 
 db = st.session_state.db
 
+# Dynamic Timetable Regeneration Session State
+if "locked_sessions" not in st.session_state:
+    st.session_state["locked_sessions"] = set()
+if "last_moved_sessions" not in st.session_state:
+    st.session_state["last_moved_sessions"] = set()
+if "regeneration_summary" not in st.session_state:
+    st.session_state["regeneration_summary"] = []
+if "timetable_undo_snapshot" not in st.session_state:
+    st.session_state["timetable_undo_snapshot"] = None
+
 # Ensure primary dataset is loaded initially if tables are empty
 dept_df = db.get_departments()
 if dept_df.empty and os.path.exists("data/AI_Timetable_Demo_Data.xlsx"):
@@ -1069,6 +1079,27 @@ if menu == "⚡ Timetable Generator & Export":
 
             st.markdown("<br/>", unsafe_allow_html=True)
 
+            # Display Change Summary when dynamic regeneration has been executed
+            if st.session_state.get("regeneration_summary"):
+                moved_list = st.session_state["regeneration_summary"]
+                st.markdown(f"""
+                <div style="background:#ECFDF5; border:1px solid #6EE7B7; border-left:5px solid #10B981; border-radius:8px; padding:12px 16px; margin:8px 0 14px 0;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="font-weight:700; color:#065F46; font-size:14px;">
+                            🔄 Dynamic Regeneration Summary: {len(moved_list)} Session(s) Relocated | {len(entries_df) - len(moved_list)} Slots Kept Fixed
+                        </div>
+                        <span style="background:#D1FAE5; color:#047857; font-size:11px; font-weight:700; padding:2px 8px; border-radius:12px;">Zero Clashes Guaranteed</span>
+                    </div>
+                    <div style="margin-top:8px; font-size:12px; color:#1E293B;">
+                """, unsafe_allow_html=True)
+                for m in moved_list:
+                    st.markdown(f"• **{m['course_id']} ({m['course_name']})**: {m['old_day']} {m['old_period']} ({m['old_room']}) &nbsp;➔&nbsp; <b style='color:#059669;'>{m['new_day']} {m['new_period']} ({m['new_room']})</b> *({m['faculty_name']})*", unsafe_allow_html=True)
+                st.markdown("</div></div>", unsafe_allow_html=True)
+                if st.button("✖️ Clear Regeneration Highlights", key="btn_clear_highlights"):
+                    st.session_state["last_moved_sessions"] = set()
+                    st.session_state["regeneration_summary"] = []
+                    st.rerun()
+
             # Department & Elective Timetable Tabs
             st.markdown("##### 🗓️ Department & Elective Timetables (Zero Clashes Guaranteed)")
             tab_cse, tab_ece, tab_it, tab_multi, tab_custom = st.tabs([
@@ -1079,10 +1110,13 @@ if menu == "⚡ Timetable Generator & Export":
                 "🔍 Custom Resource Filter"
             ])
 
+            active_locked = st.session_state.get("locked_sessions", set())
+            active_moved = st.session_state.get("last_moved_sessions", set())
+
             with tab_cse:
                 st.markdown("#### 💻 CSE Department Timetable (30 Students)")
                 st.caption("👥 Cohort: 30 Students (CSE2A: 15, CSE2B: 15) | Core: C101, C102, C103, C104, C105 | Electives: X401 (14 CSE), I303 (16 CSE) | Skill: X403 (30 CSE)")
-                grid_cse = build_department_cohort_grid(entries_df, "CSE", students_df, enroll_df)
+                grid_cse = build_department_cohort_grid(entries_df, "CSE", students_df, enroll_df, locked_sessions=active_locked, moved_sessions=active_moved)
                 st.write("Timings: P1 (09:00-09:50) | P2 (09:50-10:40) | P3 (10:50-11:40) | P4 (11:40-12:30) | [Lunch 12:30-13:30] | P5 (13:30-14:20) | P6 (14:20-15:10)")
                 st.write(grid_cse.to_html(escape=False), unsafe_allow_html=True)
 
@@ -1100,7 +1134,7 @@ if menu == "⚡ Timetable Generator & Export":
             with tab_ece:
                 st.markdown("#### 📡 ECE Department Timetable (15 Students)")
                 st.caption("👥 Cohort: 15 Students (ECE2A: 15) | Core: E201, E202, E203 | Skill: E204 (15 ECE), X403 (15 ECE) | Parallel Electives: X401 (8 ECE), X402 (7 ECE)")
-                grid_ece = build_department_cohort_grid(entries_df, "ECE", students_df, enroll_df)
+                grid_ece = build_department_cohort_grid(entries_df, "ECE", students_df, enroll_df, locked_sessions=active_locked, moved_sessions=active_moved)
                 st.write("Timings: P1 (09:00-09:50) | P2 (09:50-10:40) | P3 (10:50-11:40) | P4 (11:40-12:30) | [Lunch 12:30-13:30] | P5 (13:30-14:20) | P6 (14:20-15:10)")
                 st.write(grid_ece.to_html(escape=False), unsafe_allow_html=True)
 
@@ -1118,7 +1152,7 @@ if menu == "⚡ Timetable Generator & Export":
             with tab_it:
                 st.markdown("#### 🌐 IT Department Timetable (15 Students)")
                 st.caption("👥 Cohort: 15 Students (IT2A: 15) | Core: I301, I302, I304 | Open Elective: I303 (15 IT) | Interdisciplinary: X404 (15 IT) | Parallel Electives: X401 (7 IT), X402 (8 IT)")
-                grid_it = build_department_cohort_grid(entries_df, "IT", students_df, enroll_df)
+                grid_it = build_department_cohort_grid(entries_df, "IT", students_df, enroll_df, locked_sessions=active_locked, moved_sessions=active_moved)
                 st.write("Timings: P1 (09:00-09:50) | P2 (09:50-10:40) | P3 (10:50-11:40) | P4 (11:40-12:30) | [Lunch 12:30-13:30] | P5 (13:30-14:20) | P6 (14:20-15:10)")
                 st.write(grid_it.to_html(escape=False), unsafe_allow_html=True)
 
@@ -1136,7 +1170,7 @@ if menu == "⚡ Timetable Generator & Export":
             with tab_multi:
                 st.markdown("#### 📚 NEP 2020 Multidisciplinary & Open Electives Timetable")
                 st.caption("🌐 Combined Electives across CSE, ECE & IT: X401 ML (29 students), X402 IoT (15 students), X403 Communication (45 students), X404 Design Thinking (15 students), I303 Cloud Computing (31 students)")
-                grid_multi = build_department_cohort_grid(entries_df, None, students_df, enroll_df)
+                grid_multi = build_department_cohort_grid(entries_df, None, students_df, enroll_df, locked_sessions=active_locked, moved_sessions=active_moved)
                 st.write("Timings: P1 (09:00-09:50) | P2 (09:50-10:40) | P3 (10:50-11:40) | P4 (11:40-12:30) | [Lunch 12:30-13:30] | P5 (13:30-14:20) | P6 (14:20-15:10)")
                 st.write(grid_multi.to_html(escape=False), unsafe_allow_html=True)
 
@@ -1171,10 +1205,222 @@ if menu == "⚡ Timetable Generator & Export":
                         rooms_list = db.get_classrooms()["classroom_id"].tolist()
                         pipe_filter = st.selectbox("Select Classroom", ["All"] + rooms_list, key="gen_filter_room")
 
-                grid_df = build_timetable_grid(entries_df, pipe_view_mode, pipe_filter, students_df, enroll_df)
+                grid_df = build_timetable_grid(entries_df, pipe_view_mode, pipe_filter, students_df, enroll_df, locked_sessions=active_locked, moved_sessions=active_moved)
                 st.markdown(f"##### 🗓️ Schedule Grid: {pipe_view_mode} — {pipe_filter}")
                 st.write("Timings: P1 (09:00-09:50) | P2 (09:50-10:40) | P3 (10:50-11:40) | P4 (11:40-12:30) | [Lunch 12:30-13:30] | P5 (13:30-14:20) | P6 (14:20-15:10)")
                 st.write(grid_df.to_html(escape=False), unsafe_allow_html=True)
+
+            # =========================================================
+            # DYNAMIC TIMETABLE REGENERATION & SLOT PINNING PANEL
+            # =========================================================
+            st.markdown("<br/>", unsafe_allow_html=True)
+            with st.expander("⚡ Dynamic Timetable Regeneration & Disruption Panel", expanded=True):
+                st.markdown("""
+                <div style="margin-bottom:14px;">
+                    <h4 style="margin:0 0 4px 0; font-size:16px; font-weight:700; color:#0F172A;">⚡ Dynamic Timetable Regeneration &amp; Disruption Simulation</h4>
+                    <p style="margin:0; font-size:12px; color:#64748B;">Pin / lock specific class or lab time slots, apply real-time faculty or classroom disruptions, and re-optimize ONLY affected slots with 0 clashes guaranteed.</p>
+                </div>
+                """, unsafe_allow_html=True)
+
+                # 1. PIN / LOCK TIME SLOTS
+                st.markdown("###### 📌 1. Pin / Lock Time Slots (Fixed Constraints)")
+                c_q1, c_q2, c_q3, c_q4 = st.columns(4)
+                with c_q1:
+                    if st.button("🔒 Lock All Slots", use_container_width=True, key="btn_lock_all"):
+                        st.session_state["locked_sessions"] = set(entries_df["session_id"].tolist())
+                        st.toast(f"🔒 Locked all {len(entries_df)} scheduled sessions.")
+                        st.rerun()
+                with c_q2:
+                    if st.button("🔬 Lock All Labs", use_container_width=True, key="btn_lock_labs"):
+                        lab_sids = set(entries_df[entries_df["duration_periods"] == 2]["session_id"].tolist())
+                        st.session_state["locked_sessions"].update(lab_sids)
+                        st.toast(f"🔬 Locked {len(lab_sids)} continuous laboratory sessions.")
+                        st.rerun()
+                with c_q3:
+                    if st.button("📚 Lock All Core Courses", use_container_width=True, key="btn_lock_cores"):
+                        core_sids = set(entries_df[entries_df["course_type"] == "Major"]["session_id"].tolist())
+                        st.session_state["locked_sessions"].update(core_sids)
+                        st.toast(f"📚 Locked {len(core_sids)} core course sessions.")
+                        st.rerun()
+                with c_q4:
+                    if st.button("🔓 Unlock All Slots", use_container_width=True, key="btn_unlock_all"):
+                        st.session_state["locked_sessions"] = set()
+                        st.toast("🔓 Unlocked all slots.")
+                        st.rerun()
+
+                col_lk1, col_lk2 = st.columns(2)
+                with col_lk1:
+                    all_course_ids = sorted(entries_df["course_id"].unique().tolist())
+                    c_name_dict = entries_df.drop_duplicates("course_id").set_index("course_id")["course_name"].to_dict()
+                    already_locked_courses = [c for c in all_course_ids if c in st.session_state["locked_sessions"]]
+                    sel_lock_courses = st.multiselect(
+                        "Lock by Course (Locks all sessions of selected courses):",
+                        options=all_course_ids,
+                        default=already_locked_courses,
+                        format_func=lambda x: f"{x} - {c_name_dict.get(x, '')}",
+                        key="ms_lock_courses"
+                    )
+                    # Update course-level locks in session state
+                    for c in all_course_ids:
+                        c_sids = set(entries_df[entries_df["course_id"] == c]["session_id"].tolist())
+                        if c in sel_lock_courses:
+                            st.session_state["locked_sessions"].update(c_sids)
+                            st.session_state["locked_sessions"].add(c)
+                        elif c in st.session_state["locked_sessions"]:
+                            st.session_state["locked_sessions"].difference_update(c_sids)
+                            st.session_state["locked_sessions"].discard(c)
+
+                with col_lk2:
+                    all_sids = entries_df["session_id"].tolist()
+                    def _format_sid(sid):
+                        row_m = entries_df[entries_df["session_id"] == sid].iloc[0]
+                        return f"{sid}: {row_m['course_id']} ({row_m['day']} {row_m['period_id']} in {row_m['classroom_id']})"
+                    
+                    cur_locked_sids = [sid for sid in all_sids if sid in st.session_state["locked_sessions"]]
+                    sel_lock_sids = st.multiselect(
+                        "Lock / Unlock Specific Class or Lab Sessions:",
+                        options=all_sids,
+                        default=cur_locked_sids,
+                        format_func=_format_sid,
+                        key="ms_lock_sids"
+                    )
+                    # Merge individual session selections
+                    for sid in all_sids:
+                        if sid in sel_lock_sids:
+                            st.session_state["locked_sessions"].add(sid)
+                        elif sid in st.session_state["locked_sessions"] and not any(entries_df[entries_df["session_id"]==sid]["course_id"].isin(sel_lock_courses)):
+                            st.session_state["locked_sessions"].discard(sid)
+
+                locked_count = sum(1 for sid in entries_df["session_id"] if sid in st.session_state["locked_sessions"])
+                st.caption(f"🔒 **{locked_count} of {len(entries_df)}** sessions currently locked (`locked=True`). Visually tagged with **🔒 Locked** badges above.")
+
+                st.markdown("<hr style='margin:12px 0;'/>", unsafe_allow_html=True)
+
+                # 2. DYNAMIC CHANGE / DISRUPTION PANEL
+                st.markdown("###### ⚠️ 2. Dynamic Change & Disruption Inputs")
+                col_dis1, col_dis2 = st.columns(2)
+
+                with col_dis1:
+                    st.markdown("👨‍🏫 **Faculty Unavailability**")
+                    fac_options = faculty_df["faculty_id"].tolist()
+                    fac_name_dict = faculty_df.set_index("faculty_id")["faculty_name"].to_dict()
+                    sel_dis_fac = st.selectbox(
+                        "Select Faculty Member:",
+                        ["None (No Disruption)"] + fac_options,
+                        format_func=lambda x: f"{x} - {fac_name_dict.get(x, '')}" if x != "None (No Disruption)" else x,
+                        key="dis_fac_sel"
+                    )
+                    c_fday, c_fper = st.columns(2)
+                    with c_fday:
+                        sel_dis_fday = st.selectbox("Day Unavailable:", ["Entire Week / All Days"] + DAYS_LIST, key="dis_fday_sel")
+                    with c_fper:
+                        sel_dis_fper = st.selectbox("Slot Unavailable:", ["Entire Day", "Morning (P1-P4)", "Afternoon (P5-P6)"] + PERIODS_LIST, key="dis_fper_sel")
+
+                with col_dis2:
+                    st.markdown("🏫 **Room / Lab Blockage**")
+                    room_options = rooms_df["classroom_id"].tolist()
+                    room_name_dict = rooms_df.set_index("classroom_id")["classroom_name"].to_dict()
+                    sel_dis_room = st.selectbox(
+                        "Select Room / Lab to Block:",
+                        ["None (No Disruption)"] + room_options,
+                        format_func=lambda x: f"{x} - {room_name_dict.get(x, '')}" if x != "None (No Disruption)" else x,
+                        key="dis_room_sel"
+                    )
+                    c_rday, c_rper = st.columns(2)
+                    with c_rday:
+                        sel_dis_rday = st.selectbox("Day Blocked:", ["Entire Week / All Days"] + DAYS_LIST, key="dis_rday_sel")
+                    with c_rper:
+                        sel_dis_rper = st.selectbox("Slot Blocked:", ["Entire Day", "Morning (P1-P4)", "Afternoon (P5-P6)"] + PERIODS_LIST, key="dis_rper_sel")
+
+                st.markdown("💬 **Custom Adjustment Input (Natural Language Prompt)**")
+                nlp_prompt = st.text_input(
+                    "Custom Adjustment Prompt:",
+                    placeholder="e.g. Move AI Lab to Friday afternoon, or Shift Cloud Computing to Wednesday morning, or Avoid back-to-back lectures for Batch A",
+                    key="input_nlp_prompt"
+                )
+                parsed_custom_rule = None
+                if nlp_prompt.strip():
+                    parsed_custom_rule = parse_natural_language_adjustment(nlp_prompt, courses_df, faculty_df, rooms_df)
+                    if parsed_custom_rule.get("parsed") and parsed_custom_rule.get("explanation"):
+                        st.info(f"💡 **AI Interpreted Rule:** {parsed_custom_rule['explanation']}")
+                    else:
+                        st.caption("ℹ️ Natural language adjustment registered for optimizer soft preferences.")
+
+                st.markdown("<hr style='margin:12px 0;'/>", unsafe_allow_html=True)
+
+                # 3. REGENERATE & UNDO CONTROLS
+                st.markdown("###### 🚀 3. Execute Partial Regeneration")
+                c_act1, c_act2 = st.columns([2, 1])
+
+                with c_act1:
+                    btn_regen = st.button("⚡ Regenerate Affected Slots", type="primary", use_container_width=True, key="btn_exec_regen")
+                with c_act2:
+                    can_undo = (st.session_state.get("timetable_undo_snapshot") is not None)
+                    btn_undo = st.button("↩️ Undo Regeneration", disabled=not can_undo, use_container_width=True, key="btn_exec_undo")
+
+                if btn_undo and can_undo:
+                    snap = st.session_state.pop("timetable_undo_snapshot")
+                    st.session_state["active_pipeline_vid"] = snap["version_id"]
+                    st.session_state["locked_sessions"] = set(snap.get("locked_sessions", []))
+                    st.session_state["last_moved_sessions"] = set()
+                    st.session_state["regeneration_summary"] = []
+                    st.success(f"↩️ Timetable reverted back to snapshot of **{snap['version_id']}** (taken at {snap['timestamp']}).")
+                    st.rerun()
+
+                if btn_regen:
+                    # 1. Take Snapshot
+                    st.session_state["timetable_undo_snapshot"] = {
+                        "version_id": active_vid,
+                        "version_name": v_rec["version_name"],
+                        "entries": entries_df.to_dict(orient="records"),
+                        "locked_sessions": set(st.session_state.get("locked_sessions", set())),
+                        "timestamp": time.strftime("%H:%M:%S")
+                    }
+
+                    # 2. Build Disruptions
+                    f_dis = []
+                    if sel_dis_fac != "None (No Disruption)":
+                        f_dis.append({
+                            "faculty_id": sel_dis_fac,
+                            "day": "All" if "All" in sel_dis_fday else sel_dis_fday,
+                            "period_id": sel_dis_fper
+                        })
+
+                    r_dis = []
+                    if sel_dis_room != "None (No Disruption)":
+                        r_dis.append({
+                            "classroom_id": sel_dis_room,
+                            "day": "All" if "All" in sel_dis_rday else sel_dis_rday,
+                            "period_id": sel_dis_rper
+                        })
+
+                    # 3. Execute partial regeneration
+                    opt = TimetableOptimizer(db)
+                    with st.spinner("Executing Google OR-Tools CP-SAT Partial Rescheduling..."):
+                        reg_res = opt.regenerate_partial(
+                            current_entries=entries_df.to_dict(orient="records"),
+                            locked_sessions=st.session_state.get("locked_sessions", set()),
+                            faculty_disruptions=f_dis,
+                            room_disruptions=r_dis,
+                            custom_adjustment=parsed_custom_rule
+                        )
+
+                    if reg_res["success"]:
+                        new_version_id = f"V{int(time.time())}"
+                        new_version_name = f"Regenerated Schedule {time.strftime('%H:%M:%S')}"
+                        note_txt = f"Partial Regeneration: {len(reg_res['moved_sessions'])} relocated sessions, {reg_res['metrics'].get('stability_score', 0)}% stability."
+                        db.save_timetable_version(new_version_id, new_version_name, reg_res["entries"], reg_res["metrics"], note_txt)
+                        st.session_state["active_pipeline_vid"] = new_version_id
+                        st.session_state["last_moved_sessions"] = {m["session_id"] for m in reg_res["moved_sessions"]}
+                        st.session_state["regeneration_summary"] = reg_res["moved_sessions"]
+                        st.success(f"🎉 **Regeneration Successful!** Relocated {len(reg_res['moved_sessions'])} session(s) with 0 clashes. Saved as **{new_version_id}**.")
+                        st.balloons()
+                        st.rerun()
+                    else:
+                        st.warning(f"⚠️ **Could not reschedule without conflicts:** {reg_res['message']}")
+                        if reg_res.get("diagnostics"):
+                            for diag in reg_res["diagnostics"]:
+                                st.info(f"👉 **Fix Suggestion:** {diag.get('suggestion', '')}")
 
             st.markdown("<br/>", unsafe_allow_html=True)
             st.markdown("##### 📊 Institutional Resource Utilization Charts")
@@ -1378,6 +1624,9 @@ elif menu == "📅 View Timetables":
             students_df = db.get_students()
             enroll_df = db.get_student_enrollments()
 
+            active_locked_v = st.session_state.get("locked_sessions", set())
+            active_moved_v = st.session_state.get("last_moved_sessions", set())
+
             st.markdown("#### 🏛️ Department & Elective Schedules (Clash-Free Grids)")
             v_tab_cse, v_tab_ece, v_tab_it, v_tab_multi, v_tab_filter = st.tabs([
                 "💻 CSE (30 Students)",
@@ -1389,22 +1638,22 @@ elif menu == "📅 View Timetables":
             with v_tab_cse:
                 st.markdown("##### 💻 CSE Department Timetable (30 Students)")
                 st.caption("All 30 CSE Students | Core: C101-C105 | Electives: X401 (14 CSE), I303 (16 CSE) | Skill: X403 (30 CSE)")
-                g_cse = build_department_cohort_grid(entries_df, "CSE", students_df, enroll_df)
+                g_cse = build_department_cohort_grid(entries_df, "CSE", students_df, enroll_df, locked_sessions=active_locked_v, moved_sessions=active_moved_v)
                 st.write(g_cse.to_html(escape=False), unsafe_allow_html=True)
             with v_tab_ece:
                 st.markdown("##### 📡 ECE Department Timetable (15 Students)")
                 st.caption("All 15 ECE Students | Core: E201-E203 | Skill: E204, X403 | Parallel Electives: X401 (8 ECE), X402 (7 ECE)")
-                g_ece = build_department_cohort_grid(entries_df, "ECE", students_df, enroll_df)
+                g_ece = build_department_cohort_grid(entries_df, "ECE", students_df, enroll_df, locked_sessions=active_locked_v, moved_sessions=active_moved_v)
                 st.write(g_ece.to_html(escape=False), unsafe_allow_html=True)
             with v_tab_it:
                 st.markdown("##### 🌐 IT Department Timetable (15 Students)")
                 st.caption("All 15 IT Students | Core: I301, I302, I304 | Electives: I303, X404, X401 (7 IT), X402 (8 IT)")
-                g_it = build_department_cohort_grid(entries_df, "IT", students_df, enroll_df)
+                g_it = build_department_cohort_grid(entries_df, "IT", students_df, enroll_df, locked_sessions=active_locked_v, moved_sessions=active_moved_v)
                 st.write(g_it.to_html(escape=False), unsafe_allow_html=True)
             with v_tab_multi:
                 st.markdown("##### 📚 NEP 2020 Multidisciplinary & Open Electives Timetable")
                 st.caption("Integrated Electives across branches: X401 ML, X402 IoT, X403 Comm, X404 Design Thinking, I303 Cloud")
-                g_m = build_department_cohort_grid(entries_df, None, students_df, enroll_df)
+                g_m = build_department_cohort_grid(entries_df, None, students_df, enroll_df, locked_sessions=active_locked_v, moved_sessions=active_moved_v)
                 st.write(g_m.to_html(escape=False), unsafe_allow_html=True)
             with v_tab_filter:
                 c_v1, c_v2, c_v3 = st.columns([1, 1, 1])
@@ -1427,7 +1676,7 @@ elif menu == "📅 View Timetables":
                 with c_v3:
                     day_filter = st.selectbox("Filter by Day", ["Full Week"] + DAYS_LIST, key="vgrid_f_day")
 
-                grid_df = build_timetable_grid(entries_df, view_mode, filter_val, students_df, enroll_df)
+                grid_df = build_timetable_grid(entries_df, view_mode, filter_val, students_df, enroll_df, locked_sessions=active_locked_v, moved_sessions=active_moved_v)
                 display_grid = grid_df[[day_filter]] if day_filter != "Full Week" else grid_df
 
                 st.markdown(f"### 🗓️ Weekly Schedule: {view_mode} - {filter_val}")
@@ -1435,33 +1684,70 @@ elif menu == "📅 View Timetables":
                 st.write(display_grid.to_html(escape=False), unsafe_allow_html=True)
 
         with tab_v_diff:
-            st.markdown("#### 🔄 Dynamic Timetable Regeneration Simulation")
-            st.write("Mark a faculty member unavailable on a given slot, re-optimize, and compare the relocated sessions.")
+            st.markdown("#### 🔄 Dynamic Timetable Regeneration & Disruption Simulation")
+            st.write("Perform partial re-optimization with locked slots, faculty unavailability, room blockage, or natural language prompts.")
             col_r1, col_r2 = st.columns([1, 1])
             with col_r1:
+                st.markdown("##### ⚙️ Disruption & Regeneration Settings")
                 fac_list = db.get_faculty()
-                sel_f = st.selectbox("Faculty Member", fac_list["faculty_id"].tolist(), key="diff_fac")
-                sel_d = st.selectbox("Unavailable Day", DAYS_LIST, key="diff_day")
-                sel_p = st.selectbox("Unavailable Period", PERIODS_LIST, key="diff_per")
+                fac_names_map = fac_list.set_index("faculty_id")["faculty_name"].to_dict()
+                vsel_f = st.selectbox("Faculty Member", ["None"] + fac_list["faculty_id"].tolist(), format_func=lambda x: f"{x} - {fac_names_map.get(x, '')}" if x != "None" else "None", key="diff_fac")
+                vsel_d = st.selectbox("Unavailable Day", ["All"] + DAYS_LIST, key="diff_day")
+                vsel_p = st.selectbox("Unavailable Period", ["Entire Day", "Morning (P1-P4)", "Afternoon (P5-P6)"] + PERIODS_LIST, key="diff_per")
 
-                if st.button("Mark Unavailable and Regenerate New Version", type="primary"):
-                    db.set_faculty_availability(sel_f, sel_d, sel_p, 0)
-                    optimizer = TimetableOptimizer(db)
-                    with st.spinner("Regenerating with updated constraints..."):
-                        res = optimizer.generate()
-                        if res["success"]:
+                vnlp_text = st.text_input("Custom NLP Adjustment:", placeholder="e.g. Move AI Lab to Friday afternoon", key="diff_nlp")
+                v_parsed_rule = None
+                if vnlp_text.strip():
+                    v_parsed_rule = parse_natural_language_adjustment(vnlp_text, db.get_courses(), fac_list, db.get_classrooms())
+                    if v_parsed_rule.get("parsed"):
+                        st.info(f"💡 {v_parsed_rule['explanation']}")
+
+                c_vact1, c_vact2 = st.columns([2, 1])
+                with c_vact1:
+                    if st.button("⚡ Regenerate Affected Slots (Lock Fixed)", type="primary", key="btn_v_regen"):
+                        # Snapshot
+                        st.session_state["timetable_undo_snapshot"] = {
+                            "version_id": sel_vid,
+                            "entries": entries_df.to_dict(orient="records"),
+                            "locked_sessions": set(st.session_state.get("locked_sessions", set())),
+                            "timestamp": time.strftime("%H:%M:%S")
+                        }
+                        f_dis = []
+                        if vsel_f != "None":
+                            f_dis.append({"faculty_id": vsel_f, "day": vsel_d, "period_id": vsel_p})
+                        opt = TimetableOptimizer(db)
+                        with st.spinner("Regenerating affected slots..."):
+                            v_res = opt.regenerate_partial(
+                                current_entries=entries_df.to_dict(orient="records"),
+                                locked_sessions=st.session_state.get("locked_sessions", set()),
+                                faculty_disruptions=f_dis,
+                                custom_adjustment=v_parsed_rule
+                            )
+                        if v_res["success"]:
                             new_vid = f"V{int(time.time())}"
                             db.save_timetable_version(
                                 version_id=new_vid,
-                                version_name=f"Regenerated ({sel_f} {sel_d[:3]} {sel_p} off)",
-                                entries=res["entries"],
-                                metrics=res["metrics"],
-                                notes=f"Regenerated post {sel_f} availability update."
+                                version_name=f"Regenerated ({time.strftime('%H:%M:%S')})",
+                                entries=v_res["entries"],
+                                metrics=v_res["metrics"],
+                                notes=f"Partial regeneration from {sel_vid}."
                             )
-                            st.success(f"New Version **{new_vid}** generated successfully!")
+                            st.session_state["active_pipeline_vid"] = new_vid
+                            st.session_state["last_moved_sessions"] = {m["session_id"] for m in v_res["moved_sessions"]}
+                            st.session_state["regeneration_summary"] = v_res["moved_sessions"]
+                            st.success(f"New Version **{new_vid}** generated with {len(v_res['moved_sessions'])} relocated session(s)!")
                             st.rerun()
                         else:
-                            st.error(f"Regeneration failed: {res['message']}")
+                            st.warning(f"⚠️ {v_res['message']}")
+                with c_vact2:
+                    has_v_undo = (st.session_state.get("timetable_undo_snapshot") is not None)
+                    if st.button("↩️ Undo", disabled=not has_v_undo, key="btn_v_undo", use_container_width=True):
+                        v_snap = st.session_state.pop("timetable_undo_snapshot")
+                        st.session_state["active_pipeline_vid"] = v_snap["version_id"]
+                        st.session_state["last_moved_sessions"] = set()
+                        st.session_state["regeneration_summary"] = []
+                        st.success(f"↩️ Reverted to {v_snap['version_id']}")
+                        st.rerun()
 
             with col_r2:
                 st.markdown("##### Version Comparison & Relocated Sessions")
