@@ -763,10 +763,26 @@ if "regeneration_summary" not in st.session_state:
 if "timetable_undo_snapshot" not in st.session_state:
     st.session_state["timetable_undo_snapshot"] = None
 
+def get_demo_workbook_path():
+    candidates = [
+        os.path.join(os.path.dirname(__file__), "data", "AI_Timetable_Demo_Data.xlsx"),
+        "data/AI_Timetable_Demo_Data.xlsx",
+        os.path.join(os.path.dirname(__file__), "ai timetable generator", "data", "AI_Timetable_Demo_Data.xlsx"),
+        "ai timetable generator/data/AI_Timetable_Demo_Data.xlsx",
+    ]
+    for c in candidates:
+        if os.path.exists(c):
+            return c
+    for root, _, files in os.walk(os.path.dirname(__file__) or "."):
+        if "AI_Timetable_Demo_Data.xlsx" in files:
+            return os.path.join(root, "AI_Timetable_Demo_Data.xlsx")
+    return "data/AI_Timetable_Demo_Data.xlsx"
+
 # Ensure primary dataset is loaded initially if tables are empty
 dept_df = db.get_departments()
-if dept_df.empty and os.path.exists("data/AI_Timetable_Demo_Data.xlsx"):
-    is_v, _, dfs = db.validate_excel_workbook("data/AI_Timetable_Demo_Data.xlsx")
+_demo_path = get_demo_workbook_path()
+if dept_df.empty and os.path.exists(_demo_path):
+    is_v, _, dfs = db.validate_excel_workbook(_demo_path)
     if is_v:
         db.import_validated_data(dfs)
 
@@ -941,7 +957,8 @@ if menu == "⚡ Timetable Generator & Export":
             st.write("Or use primary demo workbook:")
             if st.button("📁 Load Bundled Primary Dataset", use_container_width=True):
                 with st.spinner("Validating and importing primary dataset..."):
-                    is_v, errs, dfs = db.validate_excel_workbook("data/AI_Timetable_Demo_Data.xlsx")
+                    demo_target = get_demo_workbook_path()
+                    is_v, errs, dfs = db.validate_excel_workbook(demo_target)
                     if is_v:
                         db.import_validated_data(dfs)
                         st.success("Primary demo dataset loaded successfully!")
