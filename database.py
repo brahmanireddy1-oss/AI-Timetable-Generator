@@ -1,6 +1,8 @@
 import os
+import io
 import json
 import sqlite3
+import zipfile
 from typing import Dict, List, Optional, Any, Tuple
 import pandas as pd
 from dotenv import load_dotenv
@@ -225,34 +227,25 @@ class DatabaseManager:
         return conn
 
     # ---------------------------------------------------------
-    # EXCEL IMPORT & VALIDATION
+    # DATASET IMPORT & VALIDATION (EXCEL & CSV)
     # ---------------------------------------------------------
-    def validate_excel_workbook(self, file_path_or_buffer) -> Tuple[bool, List[str], Dict[str, pd.DataFrame]]:
+    def validate_dataframes_dict(self, dfs: Dict[str, pd.DataFrame]) -> Tuple[bool, List[str], Dict[str, pd.DataFrame]]:
         """
-        Validates the 9 worksheets from the uploaded Excel file.
-        Detects missing sheets, missing columns, empty rows, invalid IDs, and FK inconsistencies.
+        Validates the 9 entity DataFrames against schema definitions and referential integrity constraints.
         """
         required_sheets = [
             "Departments", "Students", "Courses", "Faculty", "Classrooms",
             "Faculty_Availability", "Student_Enrollments", "Time_Slots", "Constraints"
         ]
         errors = []
-        dfs = {}
 
-        try:
-            xl = pd.ExcelFile(file_path_or_buffer)
-        except Exception as e:
-            return False, [f"Failed to read Excel workbook: {str(e)}"], {}
-
-        sheet_names = xl.sheet_names
         for rs in required_sheets:
-            if rs not in sheet_names:
-                errors.append(f"Missing required worksheet: '{rs}'")
+            if rs not in dfs or dfs[rs] is None:
+                errors.append(f"Missing required entity dataset: '{rs}'")
 
         if errors:
-            return False, errors, {}
+            return False, errors, dfs
 
-        # Column definitions
         expected_cols = {
             "Departments": ["department_id", "department_name"],
             "Students": ["student_id", "student_name", "department_id", "year", "section", "student_group"],
@@ -266,12 +259,12 @@ class DatabaseManager:
         }
 
         for sheet_name, cols in expected_cols.items():
-            df = pd.read_excel(file_path_or_buffer, sheet_name=sheet_name)
+            df = dfs[sheet_name]
             df.columns = [str(c).strip() for c in df.columns]
             dfs[sheet_name] = df
             missing = [c for c in cols if c not in df.columns]
             if missing:
-                errors.append(f"Worksheet '{sheet_name}' is missing columns: {missing}")
+                errors.append(f"Dataset '{sheet_name}' is missing columns: {missing}")
 
         if errors:
             return False, errors, dfs
@@ -325,6 +318,147 @@ class DatabaseManager:
 
         is_valid = len(errors) == 0
         return is_valid, errors, dfs
+
+    def parse_multi_table_csv(self, file_path_or_buffer_or_text) -> Dict[str, pd.DataFrame]:
+        """
+        Parses a multi-section CSV file (or raw string) into a dictionary of 9 DataFrames.
+        Recognizes each table by its canonical header line or sheet marker comment.
+        """
+        text = ""
+        if isinstance(file_path_or_buffer_or_text, str):
+            if os.path.isfile(file_path_or_buffer_or_text):
+                with open(file_path_or_buffer_or_text, "r", encoding="utf-8", errors="replace") as f:
+                    text = f.read()
+            else:
+                text = file_path_or_buffer_or_text
+        elif hasattr(file_path_or_buffer_or_text, "read"):
+            content = file_path_or_buffer_or_text.read()
+            if hasattr(file_path_or_buffer_or_text, "seek"):
+                file_path_or_buffer_or_text.seek(0)
+            if isinstance(content, bytes):
+                text = content.decode("utf-8", errors="replace")
+            else:
+                text = str(content)
+
+        known_headers = {
+            "department_id,department_name": "Departments",
+            "student_id,student_name,department_id,year,section,student_group": "Students",
+            "course_id,course_name,department_id,course_type,faculty_id,weekly_sessions,duration_periods,required_room_type,expected_enrolment": "Courses",
+            "faculty_id,faculty_name,department_id,max_weekly_periods": "Faculty",
+            "classroom_id,classroom_name,room_type,capacity,building": "Classrooms",
+            "faculty_id,day,period_id,is_available": "Faculty_Availability",
+            "student_id,course_id,semester": "Student_Enrollments",
+            "time_slot_id,day,period_id,period_number,start_time,end_time,is_teaching_slot": "Time_Slots",
+            "constraint_name,constraint_value,constraint_type,description": "Constraints"
+        }
+
+        lines = text.strip().splitlines()
+        sections = {}
+        current_key = None
+        current_lines = []
+
+        for line in lines:
+            stripped = line.strip()
+            if not stripped:
+                continue
+
+            normalized_line = stripped.replace(" ", "").lower()
+            matched_sheet = None
+            for hdr, s_name in known_headers.items():
+                if normalized_line == hdr.replace(" ", "").lower() or normalized_line.startswith(hdr.replace(" ", "").lower()):
+                    matched_sheet = s_name
+                    break
+
+            if matched_sheet:
+                if current_key and current_lines:
+                    sections[current_key] = "\n".join(current_lines)
+                current_key = matched_sheet
+                current_lines = [stripped]
+            else:
+                if current_key:
+                    current_lines.append(stripped)
+
+        if current_key and current_lines:
+            sections[current_key] = "\n".join(current_lines)
+
+        dfs = {}
+        for sheet, csv_chunk in sections.items():
+            try:
+                dfs[sheet] = pd.read_csv(io.StringIO(csv_chunk))
+            except Exception as pe:
+                pass
+        return dfs
+
+    def validate_csv_dataset(self, file_path_or_buffer_or_text) -> Tuple[bool, List[str], Dict[str, pd.DataFrame]]:
+        """Validates a CSV dataset containing all 9 institutional sections."""
+        try:
+            dfs = self.parse_multi_table_csv(file_path_or_buffer_or_text)
+            if not dfs:
+                return False, ["Unable to parse CSV into institutional tables. Please ensure the CSV contains valid table headers."], {}
+            return self.validate_dataframes_dict(dfs)
+        except Exception as e:
+            return False, [f"Failed to read CSV dataset: {str(e)}"], {}
+
+    def validate_excel_workbook(self, file_path_or_buffer) -> Tuple[bool, List[str], Dict[str, pd.DataFrame]]:
+        """
+        Validates the 9 worksheets from the uploaded Excel file.
+        Detects missing sheets, missing columns, empty rows, invalid IDs, and FK inconsistencies.
+        """
+        required_sheets = [
+            "Departments", "Students", "Courses", "Faculty", "Classrooms",
+            "Faculty_Availability", "Student_Enrollments", "Time_Slots", "Constraints"
+        ]
+        errors = []
+        dfs = {}
+
+        try:
+            xl = pd.ExcelFile(file_path_or_buffer)
+        except Exception as e:
+            return False, [f"Failed to read Excel workbook: {str(e)}"], {}
+
+        sheet_names = xl.sheet_names
+        for rs in required_sheets:
+            if rs not in sheet_names:
+                errors.append(f"Missing required worksheet: '{rs}'")
+
+        if errors:
+            return False, errors, {}
+
+        for rs in required_sheets:
+            df = pd.read_excel(file_path_or_buffer, sheet_name=rs)
+            dfs[rs] = df
+
+        return self.validate_dataframes_dict(dfs)
+
+    def validate_uploaded_dataset(self, file_or_buffer, filename: str = "") -> Tuple[bool, List[str], Dict[str, pd.DataFrame]]:
+        """
+        Unified validator supporting Excel (.xlsx), multi-table CSV (.csv), and zipped CSV bundles (.zip).
+        """
+        fname = (filename or getattr(file_or_buffer, "name", "")).lower()
+        if fname.endswith(".csv"):
+            return self.validate_csv_dataset(file_or_buffer)
+        elif fname.endswith(".zip"):
+            try:
+                dfs = {}
+                with zipfile.ZipFile(file_or_buffer, 'r') as z:
+                    for name in z.namelist():
+                        clean_n = os.path.basename(name).lower()
+                        for s_name in ["Departments", "Students", "Courses", "Faculty", "Classrooms", "Faculty_Availability", "Student_Enrollments", "Time_Slots", "Constraints"]:
+                            if s_name.lower() in clean_n and clean_n.endswith(".csv"):
+                                with z.open(name) as zf:
+                                    dfs[s_name] = pd.read_csv(zf)
+                return self.validate_dataframes_dict(dfs)
+            except Exception as ze:
+                return False, [f"Failed to extract ZIP dataset: {str(ze)}"], {}
+        else:
+            # Default to Excel; fallback to CSV
+            try:
+                is_v, errs, dfs = self.validate_excel_workbook(file_or_buffer)
+                if is_v:
+                    return is_v, errs, dfs
+            except Exception:
+                pass
+            return self.validate_csv_dataset(file_or_buffer)
 
     def import_validated_data(self, dfs: Dict[str, pd.DataFrame]) -> Tuple[bool, str]:
         """

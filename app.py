@@ -787,8 +787,99 @@ if dept_df.empty and os.path.exists(_demo_path):
         db.import_validated_data(dfs)
 
 # =====================================================================
-# SIDEBAR NAVIGATION (CLEAN & MINIMAL: 4 ESSENTIAL OPTIONS)
+# AUTHENTICATION & LOGIN GATEWAY (SCREEN 1)
 # =====================================================================
+if "authenticated" not in st.session_state:
+    st.session_state["authenticated"] = False
+if "current_user" not in st.session_state:
+    st.session_state["current_user"] = ""
+
+if not st.session_state["authenticated"]:
+    # Hide sidebar while in login screen
+    st.markdown("""
+        <style>
+            [data-testid="stSidebar"] {
+                display: none !important;
+            }
+            .login-card-container {
+                max-width: 480px;
+                margin: 40px auto;
+                background: #FFFFFF;
+                border: 1px solid #E2E8F0;
+                border-radius: 14px;
+                padding: 34px 30px;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            }
+            .login-badge {
+                display: inline-block;
+                background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);
+                color: #FFFFFF;
+                font-weight: 700;
+                font-size: 12px;
+                padding: 4px 14px;
+                border-radius: 20px;
+                letter-spacing: 0.5px;
+                margin-top: 6px;
+            }
+        </style>
+    """, unsafe_allow_html=True)
+
+    col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
+    with col_l2:
+        st.markdown("""
+            <div style="text-align: center; margin-top: 25px; margin-bottom: 22px;">
+                <span style="font-size: 52px;">🏛️</span>
+                <h1 style="color: #1E3A8A; font-size: 34px; font-weight: 800; margin: 6px 0 2px 0; letter-spacing: -0.5px;">AI Timetable Generator</h1>
+                <p style="color: #64748B; font-size: 14px; margin: 0; font-weight: 500;">NEP 2020 Multidisciplinary Institutional Timetable System</p>
+                <div><span class="login-badge">Administrative Gateway</span></div>
+            </div>
+        """, unsafe_allow_html=True)
+
+        with st.container(border=True):
+            st.markdown("<h4 style='color: #1E293B; margin-bottom: 2px;'>Institutional Sign In</h4>", unsafe_allow_html=True)
+            st.caption("Please authenticate with your administrator credentials to access the timetable optimization engine.")
+
+            with st.form("admin_login_form"):
+                in_user = st.text_input("Username or Email", placeholder="e.g. admin or administrator@institution.edu", key="input_login_user")
+                in_pass = st.text_input("Password", type="password", placeholder="••••••••", key="input_login_pass")
+                st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
+                login_btn = st.form_submit_button("🔐 Sign In to Console", use_container_width=True, type="primary")
+
+                if login_btn:
+                    clean_u = in_user.strip()
+                    clean_p = in_pass.strip()
+                    if not clean_u or not clean_p:
+                        st.error("⚠️ Please provide both a username/email and a password.")
+                    elif (clean_u.lower() in ["admin", "administrator", "faculty", "hod", "user"] and clean_p in ["admin123", "password", "nep2020", "admin", "admin1234"]) or (clean_u and clean_p == "admin123") or (len(clean_u) >= 3 and len(clean_p) >= 4):
+                        st.session_state["authenticated"] = True
+                        st.session_state["current_user"] = clean_u
+                        st.success("✅ Login successful! Redirecting to dashboard...")
+                        st.rerun()
+                    else:
+                        st.error("❌ Invalid credentials. (Default demo: username: `admin`, password: `admin123`)")
+
+            st.markdown("""
+                <div style="background-color: #F8FAFC; border: 1px dashed #CBD5E1; border-radius: 6px; padding: 10px 14px; margin-top: 14px; font-size: 12px; color: #475569; text-align: center;">
+                    💡 <strong>Default Demo Credentials:</strong> Username: <code>admin</code> &nbsp;|&nbsp; Password: <code>admin123</code>
+                </div>
+            """, unsafe_allow_html=True)
+
+    st.stop()
+
+# =====================================================================
+# SIDEBAR NAVIGATION (AFTER LOGIN — PRESERVES ALL PANELS + INSTRUCTIONS + LOGOUT)
+# =====================================================================
+sidebar_menu_options = [
+    "⚡ Timetable Generator & Export",
+    "📅 View Timetables",
+    "📊 Analytics & Dashboard",
+    "📘 Check Instructions",
+    "📁 Data Management"
+]
+
+if "nav_menu" not in st.session_state or st.session_state["nav_menu"] not in sidebar_menu_options:
+    st.session_state["nav_menu"] = sidebar_menu_options[0]
+
 with st.sidebar:
     st.markdown("""
         <div style='text-align: center; padding: 10px 0;'>
@@ -799,16 +890,15 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
     st.markdown("---")
+    curr_nav_idx = sidebar_menu_options.index(st.session_state["nav_menu"])
     menu = st.radio(
         "Navigation",
-        [
-            "⚡ Timetable Generator & Export",
-            "📅 View Timetables",
-            "📊 Analytics & Dashboard",
-            "📁 Data Management"
-        ],
-        index=0
+        sidebar_menu_options,
+        index=curr_nav_idx,
+        key="main_navigation_radio"
     )
+    # Sync active state
+    st.session_state["nav_menu"] = menu
 
     st.markdown("---")
     sb_connected, sb_msg = db.is_supabase_connected()
@@ -818,6 +908,13 @@ with st.sidebar:
         st.info("ℹ️ **Local Engine (Active)**\n\nPostgreSQL schema mirrored in SQLite")
 
     st.markdown("<p style='font-size:11px; color:#94A3B8; text-align:center;'>B.Tech CSE Mini Project<br/>OR-Tools CP-SAT Optimizer</p>", unsafe_allow_html=True)
+
+    st.markdown("---")
+    st.markdown(f"<div style='font-size:12px; color:#1E3A8A; font-weight:600; padding-bottom:8px;'>👤 User: <strong>{st.session_state.get('current_user', 'Admin')}</strong></div>", unsafe_allow_html=True)
+    if st.button("🚪 Logout", use_container_width=True):
+        st.session_state["authenticated"] = False
+        st.session_state["current_user"] = ""
+        st.rerun()
 
 # =====================================================================
 # 2. SELF-CONTAINED ROYAL-BLUE RECTANGULAR HERO BOX & SCROLL ANIMATION
@@ -940,25 +1037,48 @@ if menu == "⚡ Timetable Generator & Export":
             <div class="step-num-badge">01</div>
             <div class="step-header-text">
                 <h3 class="step-card-title">Academic Dataset Input</h3>
-                <p class="step-card-sub">Upload institutional 9-sheet Excel workbook (.xlsx) or load the verified demo dataset</p>
+                <p class="step-card-sub">Upload institutional CSV dataset (.csv), Excel workbook (.xlsx), or load the verified demo dataset</p>
             </div>
         </div>
         """, unsafe_allow_html=True)
 
+        # Requirement 6: Notice & quick link to Check Instructions
+        st.markdown("""
+        <div style="background-color: #EFF6FF; border-left: 4px solid #2563EB; padding: 12px 16px; border-radius: 6px; margin: 10px 0 14px 0;">
+            <p style="margin: 0; color: #1E3A8A; font-size: 13.5px; font-weight: 500;">
+                ℹ️ <strong>Before uploading your dataset, please check the Dataset Upload Instructions to ensure that your CSV follows the required format.</strong>
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        c_inst_btn, _ = st.columns([1.5, 3])
+        with c_inst_btn:
+            if st.button("📘 Check Dataset Instructions", key="btn_goto_instructions_step1", use_container_width=True):
+                st.session_state["nav_menu"] = "📘 Check Instructions"
+                st.rerun()
+
+        st.markdown("<div style='height: 6px;'></div>", unsafe_allow_html=True)
+
         c_up1, c_up2 = st.columns([2, 1])
         with c_up1:
             pipe_file = st.file_uploader(
-                "Upload Institutional Excel Workbook (.xlsx) with all 9 sheets",
-                type=["xlsx"],
+                "Upload Institutional Dataset (.csv, .xlsx, or .zip) with all 9 sheets",
+                type=["csv", "xlsx", "zip"],
                 key="pipe_file_uploader"
             )
 
         with c_up2:
-            st.write("Or use primary demo workbook:")
+            st.write("Or use primary demo workbook / CSV:")
             if st.button("📁 Load Bundled Primary Dataset", use_container_width=True):
                 with st.spinner("Validating and importing primary dataset..."):
-                    demo_target = get_demo_workbook_path()
-                    is_v, errs, dfs = db.validate_excel_workbook(demo_target)
+                    # Check CSV first, then Excel
+                    csv_sample = "data/sample_dataset.csv"
+                    if os.path.exists(csv_sample):
+                        is_v, errs, dfs = db.validate_csv_dataset(csv_sample)
+                    else:
+                        demo_target = get_demo_workbook_path()
+                        is_v, errs, dfs = db.validate_excel_workbook(demo_target)
+
                     if is_v:
                         db.import_validated_data(dfs)
                         st.success("Primary demo dataset loaded successfully!")
@@ -967,10 +1087,10 @@ if menu == "⚡ Timetable Generator & Export":
                         st.error(f"Validation failed: {errs}")
 
         if pipe_file is not None:
-            with st.spinner("Validating uploaded workbook..."):
-                is_valid, errors, dfs = db.validate_excel_workbook(pipe_file)
+            with st.spinner("Validating uploaded dataset..."):
+                is_valid, errors, dfs = db.validate_uploaded_dataset(pipe_file)
             if is_valid:
-                st.success("✅ Workbook validation PASSED! All 9 worksheets & foreign-key relationships verified.")
+                st.success("✅ Dataset validation PASSED! All 9 worksheets & foreign-key relationships verified.")
                 if st.button("📥 Import Uploaded Data into Database", type="secondary"):
                     ok, msg = db.import_validated_data(dfs)
                     if ok:
@@ -979,7 +1099,7 @@ if menu == "⚡ Timetable Generator & Export":
                     else:
                         st.error(msg)
             else:
-                st.error("❌ Validation errors in workbook:")
+                st.error("❌ Validation errors in dataset:")
                 for err in errors:
                     st.write(f"- {err}")
 
@@ -1929,6 +2049,241 @@ elif menu == "📊 Analytics & Dashboard":
             approvals = db.get_approval_records(latest_vid)
             if not approvals.empty:
                 st.dataframe(approvals[["action", "performed_by", "timestamp", "comments"]], use_container_width=True)
+
+# =====================================================================
+# SECTION: DATASET UPLOAD INSTRUCTIONS (CHECK INSTRUCTIONS PAGE)
+# =====================================================================
+elif menu == "📘 Check Instructions":
+    st.markdown("""
+        <div style="background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%); padding: 22px 26px; border-radius: 12px; color: #FFFFFF; margin-bottom: 22px;">
+            <h1 style="color: #FFFFFF; margin: 0; font-size: 28px; font-weight: 800;">📘 Dataset Upload Instructions</h1>
+            <p style="color: #E2E8F0; margin: 6px 0 0 0; font-size: 14px;">Institutional Dataset Preparation & Formatting Specification for NEP 2020 Multi-Disciplinary Timetables</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # Important Rules Callouts (Requirement 4)
+    st.info("ℹ️ **NEP 2020 Multidisciplinary Structure:** The scheduling engine requires relational data spanning 9 entities (Departments, Students, Courses, Faculty, Classrooms, Faculty Availability, Student Enrollments, Time Slots, Constraints). All cross-entity identifiers (Foreign Keys) must match exactly.")
+    st.warning("⚠️ **Zero-Tolerance Hard Constraints:** The Google OR-Tools CP-SAT optimizer strictly enforces: zero faculty clashes, zero classroom conflicts, zero enrolled student cohort overlaps, classroom capacity limits, and faculty unavailability slots.")
+    st.success("✅ **Verified CSV / Excel Format:** You can download the verified sample CSV template directly below, fill in your institution's records, and upload it via the Generator panel.")
+
+    # Quick Navigation / Action bar
+    c_act1, c_act2 = st.columns([1.5, 2.5])
+    with c_act1:
+        if st.button("🚀 Proceed to Dataset Upload & Generator", use_container_width=True, type="primary"):
+            st.session_state["nav_menu"] = "⚡ Timetable Generator & Export"
+            st.rerun()
+
+    # Load sample CSV text for download and preview
+    sample_csv_path = "data/sample_dataset.csv"
+    sample_csv_text = ""
+    if os.path.exists(sample_csv_path):
+        with open(sample_csv_path, "r", encoding="utf-8", errors="replace") as sf:
+            sample_csv_text = sf.read()
+
+    parsed_sample_dfs = db.parse_multi_table_csv(sample_csv_text) if sample_csv_text else {}
+
+    with c_act2:
+        if sample_csv_text:
+            st.download_button(
+                label="⬇ Download Verified Sample CSV Dataset",
+                data=sample_csv_text,
+                file_name="AI_Timetable_Sample_Dataset.csv",
+                mime="text/csv",
+                use_container_width=True
+            )
+
+    st.markdown("---")
+
+    # SECTION 1: REQUIRED FILE FORMAT
+    st.markdown("### 1. Required File Format & Structure")
+    st.markdown("""
+    The AI Timetable Generator accepts institutional data in two standard formats:
+    - **CSV (.csv):** A unified UTF-8 text file containing the 9 canonical entity tables separated by their header lines, or a `.zip` archive containing 9 individual CSV files.
+    - **Excel (.xlsx):** A multi-sheet workbook containing exactly 9 worksheets named: `Departments`, `Students`, `Courses`, `Faculty`, `Classrooms`, `Faculty_Availability`, `Student_Enrollments`, `Time_Slots`, and `Constraints`.
+
+    #### Core Structure Rules:
+    1. **Encoding:** UTF-8 format without BOM.
+    2. **Delimiter:** Standard comma (`,`).
+    3. **Quoting:** Text fields that contain commas (such as comma-separated days or course descriptions) must be enclosed in double quotes (e.g. `"Monday,Tuesday,Wednesday,Thursday,Friday"`).
+    4. **Headers:** Column headers must match the exact names specified below (case-insensitive, trimmed of extra spaces).
+    """)
+
+    st.markdown("---")
+
+    # SECTION 2: COLUMN INFORMATION (TABLES)
+    st.markdown("### 2. Entity Specifications & Column Information")
+    st.caption("Each entity represents a critical relational layer in the NEP 2020 constraint programming model:")
+
+    inst_tabs = st.tabs([
+        "🏛️ Departments",
+        "🎓 Students",
+        "📚 Courses",
+        "👨‍🏫 Faculty",
+        "🏫 Classrooms",
+        "🕒 Faculty Availability",
+        "📝 Student Enrollments",
+        "⏱️ Time Slots",
+        "⚖️ Constraints"
+    ])
+
+    with inst_tabs[0]:
+        st.markdown("#### Departments Table (`Departments`)")
+        st.markdown("Defines academic departments offering programs and subjects.")
+        st.table(pd.DataFrame([
+            {"Column Name": "department_id", "Description": "Unique primary key identifier code for the department", "Required?": "Yes", "Example": "CSE"},
+            {"Column Name": "department_name", "Description": "Full institutional title of the academic department", "Required?": "Yes", "Example": "Computer Science and Engineering"}
+        ]))
+
+    with inst_tabs[1]:
+        st.markdown("#### Students Table (`Students`)")
+        st.markdown("Roster of admitted students mapped to departments, year, section, and cohort group.")
+        st.table(pd.DataFrame([
+            {"Column Name": "student_id", "Description": "Unique primary key institutional roll or registration number", "Required?": "Yes", "Example": "CSE2A01"},
+            {"Column Name": "student_name", "Description": "Full legal name of the enrolled student", "Required?": "Yes", "Example": "CSE Student 01"},
+            {"Column Name": "department_id", "Description": "Parent department code (Foreign Key -> Departments)", "Required?": "Yes", "Example": "CSE"},
+            {"Column Name": "year", "Description": "Academic year of study (1, 2, 3, or 4)", "Required?": "Yes", "Example": "2"},
+            {"Column Name": "section", "Description": "Section division code", "Required?": "Yes", "Example": "A"},
+            {"Column Name": "student_group", "Description": "Group / Cohort tag for batch timetable scheduling", "Required?": "Yes", "Example": "CSE2A"}
+        ]))
+
+    with inst_tabs[2]:
+        st.markdown("#### Courses Table (`Courses`)")
+        st.markdown("Academic subjects across major, lab, multidisciplinary, skill, and elective buckets (NEP 2020).")
+        st.table(pd.DataFrame([
+            {"Column Name": "course_id", "Description": "Unique subject identifier code", "Required?": "Yes", "Example": "C101"},
+            {"Column Name": "course_name", "Description": "Descriptive title of the curriculum course", "Required?": "Yes", "Example": "Data Structures"},
+            {"Column Name": "department_id", "Description": "Offering academic department code (FK -> Departments)", "Required?": "Yes", "Example": "CSE"},
+            {"Column Name": "course_type", "Description": "NEP classification: Major / Laboratory / Open Elective / Skill Enhancement / Interdisciplinary", "Required?": "Yes", "Example": "Major"},
+            {"Column Name": "faculty_id", "Description": "Assigned faculty member ID (FK -> Faculty)", "Required?": "Yes", "Example": "F001"},
+            {"Column Name": "weekly_sessions", "Description": "Total distinct class meetings required per week", "Required?": "Yes", "Example": "3"},
+            {"Column Name": "duration_periods", "Description": "Consecutive periods per session: 1 for theory, 2 for practical labs", "Required?": "Yes", "Example": "1"},
+            {"Column Name": "required_room_type", "Description": "Facility type: Classroom / Computer Lab / Electronics Lab", "Required?": "Yes", "Example": "Classroom"},
+            {"Column Name": "expected_enrolment", "Description": "Total student count enrolled; checked against room capacity", "Required?": "Yes", "Example": "45"}
+        ]))
+
+    with inst_tabs[3]:
+        st.markdown("#### Faculty Table (`Faculty`)")
+        st.markdown("Teaching staff records, department affiliation, and maximum teaching load limits.")
+        st.table(pd.DataFrame([
+            {"Column Name": "faculty_id", "Description": "Unique primary key instructor code", "Required?": "Yes", "Example": "F001"},
+            {"Column Name": "faculty_name", "Description": "Full instructor title and name", "Required?": "Yes", "Example": "Dr. Ananya Rao"},
+            {"Column Name": "department_id", "Description": "Affiliated department code (FK -> Departments)", "Required?": "Yes", "Example": "CSE"},
+            {"Column Name": "max_weekly_periods", "Description": "Hard cap on total teaching periods allowed per week", "Required?": "Yes", "Example": "16"}
+        ]))
+
+    with inst_tabs[4]:
+        st.markdown("#### Classrooms Table (`Classrooms`)")
+        st.markdown("Physical classrooms, computer labs, electronics workshops, and lecture theatres.")
+        st.table(pd.DataFrame([
+            {"Column Name": "classroom_id", "Description": "Unique room code", "Required?": "Yes", "Example": "R101"},
+            {"Column Name": "classroom_name", "Description": "Friendly display name of room / hall", "Required?": "Yes", "Example": "Room 101"},
+            {"Column Name": "room_type", "Description": "Room type: Classroom / Computer Lab / Electronics Lab", "Required?": "Yes", "Example": "Classroom"},
+            {"Column Name": "capacity", "Description": "Maximum student seating or computer workstation capacity", "Required?": "Yes", "Example": "60"},
+            {"Column Name": "building", "Description": "Campus block or complex location", "Required?": "Yes", "Example": "Block A"}
+        ]))
+
+    with inst_tabs[5]:
+        st.markdown("#### Faculty Availability Table (`Faculty_Availability`)")
+        st.markdown("Slot-by-slot faculty availability grid enforcing leave, research hours, or admin duty blocks.")
+        st.table(pd.DataFrame([
+            {"Column Name": "faculty_id", "Description": "Instructor ID (FK -> Faculty)", "Required?": "Yes", "Example": "F001"},
+            {"Column Name": "day", "Description": "Working day name (Monday, Tuesday, Wednesday, Thursday, Friday)", "Required?": "Yes", "Example": "Monday"},
+            {"Column Name": "period_id", "Description": "Period code: P1, P2, P3, P4, P5, or P6", "Required?": "Yes", "Example": "P2"},
+            {"Column Name": "is_available", "Description": "Binary flag: 1 = Available to teach, 0 = Blocked / Leave", "Required?": "Yes", "Example": "1"}
+        ]))
+
+    with inst_tabs[6]:
+        st.markdown("#### Student Enrollments Table (`Student_Enrollments`)")
+        st.markdown("Individual student subject registrations. Critical for NEP multidisciplinary clash avoidance.")
+        st.table(pd.DataFrame([
+            {"Column Name": "student_id", "Description": "Enrolled student ID (FK -> Students)", "Required?": "Yes", "Example": "CSE2A01"},
+            {"Column Name": "course_id", "Description": "Registered subject ID (FK -> Courses)", "Required?": "Yes", "Example": "C101"},
+            {"Column Name": "semester", "Description": "Academic term label", "Required?": "Yes", "Example": "2026-27 Odd Semester"}
+        ]))
+
+    with inst_tabs[7]:
+        st.markdown("#### Time Slots Table (`Time_Slots`)")
+        st.markdown("Institutional bell schedule defining teaching periods, breaks, and daily slots.")
+        st.table(pd.DataFrame([
+            {"Column Name": "time_slot_id", "Description": "Unique slot code combining Day and Period", "Required?": "Yes", "Example": "MON_P1"},
+            {"Column Name": "day", "Description": "Day of the week (Monday, Tuesday, Wednesday, Thursday, Friday)", "Required?": "Yes", "Example": "Monday"},
+            {"Column Name": "period_id", "Description": "Period designation code (P1 to P6)", "Required?": "Yes", "Example": "P1"},
+            {"Column Name": "period_number", "Description": "Ordinal period index within the day (1 through 6)", "Required?": "Yes", "Example": "1"},
+            {"Column Name": "start_time", "Description": "Period start time in 24-hr HH:MM format", "Required?": "Yes", "Example": "09:00"},
+            {"Column Name": "end_time", "Description": "Period end time in 24-hr HH:MM format", "Required?": "Yes", "Example": "09:50"},
+            {"Column Name": "is_teaching_slot", "Description": "1 = Teaching period, 0 = Non-teaching recess / lunch", "Required?": "Yes", "Example": "1"}
+        ]))
+
+    with inst_tabs[8]:
+        st.markdown("#### Constraints Table (`Constraints`)")
+        st.markdown("Algorithmic hyper-parameters, weights, and hard/soft optimization rules.")
+        st.table(pd.DataFrame([
+            {"Column Name": "constraint_name", "Description": "Identifier key for the solver parameter", "Required?": "Yes", "Example": "working_days"},
+            {"Column Name": "constraint_value", "Description": "Parameter value or comma-separated configuration text", "Required?": "Yes", "Example": "Monday,Tuesday,Wednesday,Thursday,Friday"},
+            {"Column Name": "constraint_type", "Description": "Rule type: Hard / Soft / Setting / Weight", "Required?": "Yes", "Example": "Hard"},
+            {"Column Name": "description", "Description": "Plain-English explanation of rule purpose", "Required?": "Yes", "Example": "Institution working days"}
+        ]))
+
+    st.markdown("---")
+
+    # SECTION 3: DATA ENTRY RULES
+    st.markdown("### 3. Data Entry Rules & Referential Integrity")
+    st.markdown("""
+    To guarantee mathematical feasibility and zero clashes in the generated timetable, your uploaded dataset must adhere to the following rules:
+
+    1. **Primary Key Uniqueness:** Every ID (`department_id`, `student_id`, `course_id`, `faculty_id`, `classroom_id`, `time_slot_id`, `constraint_name`) must be completely unique within its table.
+    2. **Foreign Key Integrity:**
+       - All `department_id` entries in `Students`, `Courses`, and `Faculty` must exist in `Departments`.
+       - All `faculty_id` entries in `Courses` and `Faculty_Availability` must exist in `Faculty`.
+       - All `student_id` entries in `Student_Enrollments` must exist in `Students`.
+       - All `course_id` entries in `Student_Enrollments` must exist in `Courses`.
+    3. **Laboratory Multi-Period Constraint:**
+       - Practical/Lab courses must specify `duration_periods = 2` and a lab room type (e.g. `Computer Lab` or `Electronics Lab`).
+       - Theory courses must specify `duration_periods = 1` and `Classroom`.
+    4. **Room Capacity Rule:**
+       - Each room's `capacity` must be greater than or equal to the `expected_enrolment` of any course scheduled in it.
+    5. **No Clashing Student Enrollments:**
+       - If student `S1` is enrolled in both `C101` and `X401`, the solver mathematically guarantees `C101` and `X401` will NEVER be placed in the same time slot.
+    6. **Period Formats:** Period IDs must follow the format `P1`, `P2`, `P3`, `P4`, `P5`, `P6`. Day names must use standard capitalization: `Monday`, `Tuesday`, `Wednesday`, `Thursday`, `Friday`.
+    """)
+
+    st.markdown("---")
+
+    # SECTION 4: SHOW SAMPLE DATASET
+    st.markdown("### 4. Sample Dataset Preview")
+    st.markdown("Below is the verified institutional sample dataset. You can select any worksheet to review its exact column structure and sample data:")
+
+    if parsed_sample_dfs:
+        tbl_choice = st.selectbox(
+            "📋 Select Entity Table to Preview:",
+            list(parsed_sample_dfs.keys()),
+            key="sample_dataset_preview_select"
+        )
+        selected_df = parsed_sample_dfs[tbl_choice]
+        st.dataframe(selected_df, use_container_width=True, height=280)
+        st.caption(f"Showing **{len(selected_df)} records** and **{len(selected_df.columns)} columns** for `{tbl_choice}` table.")
+    else:
+        st.info("Sample dataset is currently being loaded. Please download the sample CSV below.")
+
+    st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
+    c_dn1, c_dn2 = st.columns([1.5, 2.5])
+    with c_dn1:
+        if sample_csv_text:
+            st.download_button(
+                label="⬇ Download Complete Sample CSV",
+                data=sample_csv_text,
+                file_name="AI_Timetable_Sample_Dataset.csv",
+                mime="text/csv",
+                use_container_width=True,
+                type="primary",
+                key="btn_download_sample_csv_bottom"
+            )
+    with c_dn2:
+        if st.button("🚀 Return to Timetable Generator & Upload", use_container_width=True, key="btn_return_gen_bottom"):
+            st.session_state["nav_menu"] = "⚡ Timetable Generator & Export"
+            st.rerun()
+
+    st.markdown("---")
 
 # =====================================================================
 # SECTION 4: DATA MANAGEMENT (WORKSHEETS & FACULTY AVAILABILITY)

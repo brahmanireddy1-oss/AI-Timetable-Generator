@@ -212,3 +212,28 @@ def test_export_formats(db):
     txt_content = export_timetable_txt("V1.0", "NEP Timetable V1.0", "CSE Department View", grid, metrics)
     assert len(txt_content) > 500
     assert "NATIONAL EDUCATION POLICY" in txt_content
+
+def test_csv_dataset_validation_and_import(db):
+    """Test validating and importing the multi-table CSV format."""
+    csv_file = "data/sample_dataset.csv"
+    assert os.path.exists(csv_file)
+    is_valid, errors, dfs = db.validate_csv_dataset(csv_file)
+    assert is_valid is True
+    assert len(errors) == 0
+    assert len(dfs) == 9
+    assert "Departments" in dfs
+    assert "Students" in dfs
+    assert "Courses" in dfs
+    assert "Faculty" in dfs
+    assert "Classrooms" in dfs
+    assert "Faculty_Availability" in dfs
+    assert "Student_Enrollments" in dfs
+    assert "Time_Slots" in dfs
+    assert "Constraints" in dfs
+
+    # Test unified validate_uploaded_dataset
+    with open(csv_file, "r", encoding="utf-8") as f:
+        is_v_up, errs_up, dfs_up = db.validate_uploaded_dataset(f, filename="AI_Timetable_Sample_Dataset.csv")
+    assert is_v_up is True
+    assert len(errs_up) == 0
+    assert len(dfs_up) == 9

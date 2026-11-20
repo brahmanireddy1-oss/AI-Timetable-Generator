@@ -1,0 +1,903 @@
+department_id,department_name
+CSE,Computer Science and Engineering
+ECE,Electronics and Communication Engineering
+IT,Information Technology
+student_id,student_name,department_id,year,section,student_group
+CSE2A01,CSE Student 01,CSE,2,A,CSE2A
+CSE2A02,CSE Student 02,CSE,2,A,CSE2A
+CSE2A03,CSE Student 03,CSE,2,A,CSE2A
+CSE2A04,CSE Student 04,CSE,2,A,CSE2A
+CSE2A05,CSE Student 05,CSE,2,A,CSE2A
+CSE2A06,CSE Student 06,CSE,2,A,CSE2A
+CSE2A07,CSE Student 07,CSE,2,A,CSE2A
+CSE2A08,CSE Student 08,CSE,2,A,CSE2A
+CSE2A09,CSE Student 09,CSE,2,A,CSE2A
+CSE2A10,CSE Student 10,CSE,2,A,CSE2A
+CSE2A11,CSE Student 11,CSE,2,A,CSE2A
+CSE2A12,CSE Student 12,CSE,2,A,CSE2A
+CSE2A13,CSE Student 13,CSE,2,A,CSE2A
+CSE2A14,CSE Student 14,CSE,2,A,CSE2A
+CSE2A15,CSE Student 15,CSE,2,A,CSE2A
+CSE2B01,CSE Student 01,CSE,2,B,CSE2B
+CSE2B02,CSE Student 02,CSE,2,B,CSE2B
+CSE2B03,CSE Student 03,CSE,2,B,CSE2B
+CSE2B04,CSE Student 04,CSE,2,B,CSE2B
+CSE2B05,CSE Student 05,CSE,2,B,CSE2B
+CSE2B06,CSE Student 06,CSE,2,B,CSE2B
+CSE2B07,CSE Student 07,CSE,2,B,CSE2B
+CSE2B08,CSE Student 08,CSE,2,B,CSE2B
+CSE2B09,CSE Student 09,CSE,2,B,CSE2B
+CSE2B10,CSE Student 10,CSE,2,B,CSE2B
+CSE2B11,CSE Student 11,CSE,2,B,CSE2B
+CSE2B12,CSE Student 12,CSE,2,B,CSE2B
+CSE2B13,CSE Student 13,CSE,2,B,CSE2B
+CSE2B14,CSE Student 14,CSE,2,B,CSE2B
+CSE2B15,CSE Student 15,CSE,2,B,CSE2B
+ECE2A01,ECE Student 01,ECE,2,A,ECE2A
+ECE2A02,ECE Student 02,ECE,2,A,ECE2A
+ECE2A03,ECE Student 03,ECE,2,A,ECE2A
+ECE2A04,ECE Student 04,ECE,2,A,ECE2A
+ECE2A05,ECE Student 05,ECE,2,A,ECE2A
+ECE2A06,ECE Student 06,ECE,2,A,ECE2A
+ECE2A07,ECE Student 07,ECE,2,A,ECE2A
+ECE2A08,ECE Student 08,ECE,2,A,ECE2A
+ECE2A09,ECE Student 09,ECE,2,A,ECE2A
+ECE2A10,ECE Student 10,ECE,2,A,ECE2A
+ECE2A11,ECE Student 11,ECE,2,A,ECE2A
+ECE2A12,ECE Student 12,ECE,2,A,ECE2A
+ECE2A13,ECE Student 13,ECE,2,A,ECE2A
+ECE2A14,ECE Student 14,ECE,2,A,ECE2A
+ECE2A15,ECE Student 15,ECE,2,A,ECE2A
+IT2A01,IT Student 01,IT,2,A,IT2A
+IT2A02,IT Student 02,IT,2,A,IT2A
+IT2A03,IT Student 03,IT,2,A,IT2A
+IT2A04,IT Student 04,IT,2,A,IT2A
+IT2A05,IT Student 05,IT,2,A,IT2A
+IT2A06,IT Student 06,IT,2,A,IT2A
+IT2A07,IT Student 07,IT,2,A,IT2A
+IT2A08,IT Student 08,IT,2,A,IT2A
+IT2A09,IT Student 09,IT,2,A,IT2A
+IT2A10,IT Student 10,IT,2,A,IT2A
+IT2A11,IT Student 11,IT,2,A,IT2A
+IT2A12,IT Student 12,IT,2,A,IT2A
+IT2A13,IT Student 13,IT,2,A,IT2A
+IT2A14,IT Student 14,IT,2,A,IT2A
+IT2A15,IT Student 15,IT,2,A,IT2A
+course_id,course_name,department_id,course_type,faculty_id,weekly_sessions,duration_periods,required_room_type,expected_enrolment
+C101,Data Structures,CSE,Major,F001,3,1,Classroom,45
+C102,Database Management Systems,CSE,Major,F002,3,1,Classroom,45
+C103,Object Oriented Programming,CSE,Major,F003,3,1,Classroom,45
+C104,Data Structures Lab,CSE,Laboratory,F001,2,2,Computer Lab,30
+C105,Operating Systems,CSE,Major,F004,3,1,Classroom,45
+C106,Artificial Intelligence Fundamentals,CSE,Open Elective,F012,2,1,Classroom,45
+E201,Digital Electronics,ECE,Major,F005,3,1,Classroom,30
+E202,Signals and Systems,ECE,Major,F006,3,1,Classroom,30
+E203,Microcontrollers Lab,ECE,Laboratory,F007,2,2,Electronics Lab,30
+E204,Python for Engineers,ECE,Skill Enhancement,F009,2,1,Computer Lab,45
+I301,Web Technologies,IT,Major,F009,3,1,Classroom,30
+I302,Computer Networks,IT,Major,F010,3,1,Classroom,30
+I303,Cloud Computing,IT,Open Elective,F011,2,1,Computer Lab,45
+I304,Software Engineering,IT,Major,F010,3,1,Classroom,30
+X401,Introduction to Machine Learning,CSE,Interdisciplinary,F012,2,1,Computer Lab,45
+X402,IoT Applications,ECE,Interdisciplinary,F008,2,1,Electronics Lab,30
+X403,Professional Communication,IT,Skill Enhancement,F011,2,1,Classroom,60
+X404,Design Thinking,CSE,Interdisciplinary,F004,1,1,Classroom,60
+faculty_id,faculty_name,department_id,max_weekly_periods
+F001,Dr. Ananya Rao,CSE,16
+F002,Mr. Kiran Kumar,CSE,16
+F003,Ms. Sravya Reddy,CSE,14
+F004,Dr. Vivek Sharma,CSE,14
+F005,Mr. Rahul Varma,ECE,16
+F006,Ms. Nisha Devi,ECE,14
+F007,Dr. Arjun Reddy,ECE,14
+F008,Mr. Sai Teja,ECE,16
+F009,Dr. Meera Joshi,IT,16
+F010,Mr. Naveen Rao,IT,14
+F011,Ms. Pooja Singh,IT,14
+F012,Dr. Harish Babu,CSE,12
+classroom_id,classroom_name,room_type,capacity,building
+R101,Room 101,Classroom,60,Block A
+R102,Room 102,Classroom,60,Block A
+R103,Room 103,Classroom,45,Block A
+R201,Room 201,Classroom,60,Block B
+R202,Room 202,Classroom,45,Block B
+CLAB1,Computer Lab 1,Computer Lab,40,Block C
+CLAB2,Computer Lab 2,Computer Lab,45,Block C
+ELAB1,Electronics Lab 1,Electronics Lab,35,Block C
+ELAB2,Electronics Lab 2,Electronics Lab,30,Block C
+R301,Seminar Room,Classroom,80,Block B
+faculty_id,day,period_id,is_available
+F001,Monday,P2,1
+F001,Monday,P3,1
+F001,Monday,P4,1
+F001,Monday,P5,1
+F001,Monday,P6,1
+F001,Tuesday,P1,1
+F001,Tuesday,P2,1
+F001,Tuesday,P3,1
+F001,Tuesday,P4,1
+F001,Tuesday,P5,1
+F001,Tuesday,P6,1
+F001,Wednesday,P1,1
+F001,Wednesday,P2,1
+F001,Wednesday,P3,1
+F001,Wednesday,P4,1
+F001,Wednesday,P5,1
+F001,Wednesday,P6,1
+F001,Thursday,P1,1
+F001,Thursday,P2,1
+F001,Thursday,P3,1
+F001,Thursday,P4,1
+F001,Thursday,P5,1
+F001,Thursday,P6,1
+F001,Friday,P1,1
+F001,Friday,P2,1
+F001,Friday,P3,1
+F001,Friday,P4,1
+F001,Friday,P5,1
+F001,Friday,P6,1
+F002,Monday,P1,1
+F002,Monday,P2,1
+F002,Monday,P3,1
+F002,Monday,P4,1
+F002,Monday,P5,1
+F002,Monday,P6,1
+F002,Tuesday,P1,1
+F002,Tuesday,P2,1
+F002,Tuesday,P3,1
+F002,Tuesday,P4,1
+F002,Tuesday,P5,1
+F002,Tuesday,P6,1
+F002,Wednesday,P1,1
+F002,Wednesday,P2,1
+F002,Wednesday,P3,1
+F002,Wednesday,P4,1
+F002,Wednesday,P5,1
+F002,Wednesday,P6,1
+F002,Thursday,P1,1
+F002,Thursday,P2,1
+F002,Thursday,P3,1
+F002,Thursday,P4,1
+F002,Thursday,P5,1
+F002,Thursday,P6,1
+F002,Friday,P1,1
+F002,Friday,P2,1
+F002,Friday,P3,1
+F002,Friday,P4,1
+F002,Friday,P5,1
+F002,Friday,P6,1
+F003,Monday,P1,1
+F003,Monday,P2,1
+F003,Monday,P3,1
+F003,Monday,P4,1
+F003,Monday,P5,1
+F003,Monday,P6,1
+F003,Tuesday,P1,1
+F003,Tuesday,P2,1
+F003,Tuesday,P3,1
+F003,Tuesday,P4,1
+F003,Tuesday,P5,1
+F003,Tuesday,P6,1
+F003,Wednesday,P1,1
+F003,Wednesday,P2,1
+F003,Wednesday,P3,1
+F003,Wednesday,P4,1
+F003,Wednesday,P5,1
+F003,Wednesday,P6,1
+F003,Thursday,P1,1
+F003,Thursday,P2,1
+F003,Thursday,P3,1
+F003,Thursday,P4,1
+F003,Thursday,P5,1
+F003,Thursday,P6,1
+F003,Friday,P1,1
+F003,Friday,P2,1
+F003,Friday,P3,1
+F003,Friday,P4,1
+F003,Friday,P5,1
+F003,Friday,P6,1
+F004,Monday,P1,1
+F004,Monday,P2,1
+F004,Monday,P3,1
+F004,Monday,P4,1
+F004,Monday,P5,1
+F004,Monday,P6,1
+F004,Tuesday,P1,1
+F004,Tuesday,P2,1
+F004,Tuesday,P3,1
+F004,Tuesday,P4,1
+F004,Tuesday,P5,1
+F004,Tuesday,P6,1
+F004,Wednesday,P1,1
+F004,Wednesday,P2,1
+F004,Wednesday,P3,1
+F004,Wednesday,P4,1
+F004,Wednesday,P5,1
+F004,Wednesday,P6,1
+F004,Thursday,P1,1
+F004,Thursday,P2,1
+F004,Thursday,P3,1
+F004,Thursday,P4,1
+F004,Thursday,P5,1
+F004,Thursday,P6,1
+F004,Friday,P1,1
+F004,Friday,P2,1
+F004,Friday,P3,1
+F004,Friday,P4,1
+F004,Friday,P5,1
+F004,Friday,P6,1
+F005,Monday,P1,1
+F005,Monday,P2,1
+F005,Monday,P3,1
+F005,Monday,P4,1
+F005,Monday,P5,1
+F005,Monday,P6,1
+F005,Tuesday,P1,1
+F005,Tuesday,P2,1
+F005,Tuesday,P3,1
+F005,Tuesday,P4,1
+F005,Tuesday,P5,1
+F005,Tuesday,P6,1
+F005,Wednesday,P1,1
+F005,Wednesday,P3,1
+F005,Wednesday,P4,1
+F005,Wednesday,P5,1
+F005,Wednesday,P6,1
+F005,Thursday,P1,1
+F005,Thursday,P2,1
+F005,Thursday,P3,1
+F005,Thursday,P4,1
+F005,Thursday,P5,1
+F005,Thursday,P6,1
+F005,Friday,P1,1
+F005,Friday,P2,1
+F005,Friday,P3,1
+F005,Friday,P4,1
+F005,Friday,P5,1
+F005,Friday,P6,1
+F006,Monday,P1,1
+F006,Monday,P2,1
+F006,Monday,P3,1
+F006,Monday,P4,1
+F006,Monday,P5,1
+F006,Monday,P6,1
+F006,Tuesday,P1,1
+F006,Tuesday,P2,1
+F006,Tuesday,P3,1
+F006,Tuesday,P4,1
+F006,Tuesday,P5,1
+F006,Tuesday,P6,1
+F006,Wednesday,P1,1
+F006,Wednesday,P2,1
+F006,Wednesday,P3,1
+F006,Wednesday,P4,1
+F006,Wednesday,P5,1
+F006,Wednesday,P6,1
+F006,Thursday,P1,1
+F006,Thursday,P2,1
+F006,Thursday,P3,1
+F006,Thursday,P4,1
+F006,Thursday,P5,1
+F006,Thursday,P6,1
+F006,Friday,P1,1
+F006,Friday,P2,1
+F006,Friday,P3,1
+F006,Friday,P4,1
+F006,Friday,P5,1
+F006,Friday,P6,1
+F007,Monday,P1,1
+F007,Monday,P2,1
+F007,Monday,P3,1
+F007,Monday,P4,1
+F007,Monday,P5,1
+F007,Monday,P6,1
+F007,Tuesday,P1,1
+F007,Tuesday,P2,1
+F007,Tuesday,P3,1
+F007,Tuesday,P4,1
+F007,Tuesday,P5,1
+F007,Tuesday,P6,1
+F007,Wednesday,P1,1
+F007,Wednesday,P2,1
+F007,Wednesday,P3,1
+F007,Wednesday,P4,1
+F007,Wednesday,P5,1
+F007,Wednesday,P6,1
+F007,Thursday,P2,1
+F007,Thursday,P3,1
+F007,Thursday,P4,1
+F007,Thursday,P5,1
+F007,Thursday,P6,1
+F007,Friday,P1,1
+F007,Friday,P2,1
+F007,Friday,P3,1
+F007,Friday,P4,1
+F007,Friday,P5,1
+F007,Friday,P6,1
+F008,Monday,P1,1
+F008,Monday,P2,1
+F008,Monday,P3,1
+F008,Monday,P4,1
+F008,Monday,P5,1
+F008,Monday,P6,1
+F008,Tuesday,P1,1
+F008,Tuesday,P2,1
+F008,Tuesday,P3,1
+F008,Tuesday,P4,1
+F008,Tuesday,P5,1
+F008,Tuesday,P6,1
+F008,Wednesday,P1,1
+F008,Wednesday,P2,1
+F008,Wednesday,P3,1
+F008,Wednesday,P4,1
+F008,Wednesday,P5,1
+F008,Wednesday,P6,1
+F008,Thursday,P1,1
+F008,Thursday,P2,1
+F008,Thursday,P3,1
+F008,Thursday,P4,1
+F008,Thursday,P5,1
+F008,Thursday,P6,1
+F008,Friday,P1,1
+F008,Friday,P2,1
+F008,Friday,P3,1
+F008,Friday,P4,1
+F008,Friday,P5,1
+F008,Friday,P6,1
+F009,Monday,P1,1
+F009,Monday,P2,1
+F009,Monday,P3,1
+F009,Monday,P4,1
+F009,Monday,P5,1
+F009,Monday,P6,1
+F009,Tuesday,P1,1
+F009,Tuesday,P2,1
+F009,Tuesday,P3,1
+F009,Tuesday,P4,1
+F009,Tuesday,P5,1
+F009,Tuesday,P6,1
+F009,Wednesday,P1,1
+F009,Wednesday,P2,1
+F009,Wednesday,P3,1
+F009,Wednesday,P4,1
+F009,Wednesday,P5,1
+F009,Wednesday,P6,1
+F009,Thursday,P1,1
+F009,Thursday,P2,1
+F009,Thursday,P3,1
+F009,Thursday,P4,1
+F009,Thursday,P5,1
+F009,Thursday,P6,1
+F009,Friday,P1,1
+F009,Friday,P2,1
+F009,Friday,P3,1
+F009,Friday,P4,1
+F009,Friday,P5,1
+F009,Friday,P6,1
+F010,Monday,P1,1
+F010,Monday,P2,1
+F010,Monday,P3,1
+F010,Monday,P4,1
+F010,Monday,P5,1
+F010,Monday,P6,1
+F010,Tuesday,P1,1
+F010,Tuesday,P2,1
+F010,Tuesday,P3,1
+F010,Tuesday,P4,1
+F010,Tuesday,P5,1
+F010,Tuesday,P6,1
+F010,Wednesday,P1,1
+F010,Wednesday,P2,1
+F010,Wednesday,P3,1
+F010,Wednesday,P4,1
+F010,Wednesday,P5,1
+F010,Wednesday,P6,1
+F010,Thursday,P1,1
+F010,Thursday,P2,1
+F010,Thursday,P3,1
+F010,Thursday,P4,1
+F010,Thursday,P5,1
+F010,Thursday,P6,1
+F010,Friday,P1,1
+F010,Friday,P2,1
+F010,Friday,P3,1
+F010,Friday,P4,1
+F010,Friday,P5,1
+F010,Friday,P6,1
+F011,Monday,P1,1
+F011,Monday,P2,1
+F011,Monday,P3,1
+F011,Monday,P4,1
+F011,Monday,P5,1
+F011,Monday,P6,1
+F011,Tuesday,P1,1
+F011,Tuesday,P2,1
+F011,Tuesday,P3,1
+F011,Tuesday,P4,1
+F011,Tuesday,P5,1
+F011,Tuesday,P6,1
+F011,Wednesday,P1,1
+F011,Wednesday,P2,1
+F011,Wednesday,P3,1
+F011,Wednesday,P4,1
+F011,Wednesday,P5,1
+F011,Wednesday,P6,1
+F011,Thursday,P1,1
+F011,Thursday,P2,1
+F011,Thursday,P3,1
+F011,Thursday,P4,1
+F011,Thursday,P5,1
+F011,Thursday,P6,1
+F011,Friday,P1,1
+F011,Friday,P2,1
+F011,Friday,P3,1
+F011,Friday,P4,1
+F011,Friday,P5,1
+F011,Friday,P6,1
+F012,Monday,P1,1
+F012,Monday,P2,1
+F012,Monday,P3,1
+F012,Monday,P4,1
+F012,Monday,P5,1
+F012,Monday,P6,1
+F012,Tuesday,P1,1
+F012,Tuesday,P2,1
+F012,Tuesday,P3,1
+F012,Tuesday,P5,1
+F012,Tuesday,P6,1
+F012,Wednesday,P1,1
+F012,Wednesday,P2,1
+F012,Wednesday,P3,1
+F012,Wednesday,P4,1
+F012,Wednesday,P5,1
+F012,Wednesday,P6,1
+F012,Thursday,P1,1
+F012,Thursday,P2,1
+F012,Thursday,P3,1
+F012,Thursday,P4,1
+F012,Thursday,P5,1
+F012,Thursday,P6,1
+F012,Friday,P1,1
+F012,Friday,P2,1
+F012,Friday,P3,1
+F012,Friday,P4,1
+F012,Friday,P5,1
+F012,Friday,P6,1
+student_id,course_id,semester
+CSE2A01,C101,2026-27 Odd Semester
+CSE2A01,C102,2026-27 Odd Semester
+CSE2A01,C103,2026-27 Odd Semester
+CSE2A01,C104,2026-27 Odd Semester
+CSE2A01,C105,2026-27 Odd Semester
+CSE2A01,X401,2026-27 Odd Semester
+CSE2A01,X403,2026-27 Odd Semester
+CSE2A02,C101,2026-27 Odd Semester
+CSE2A02,C102,2026-27 Odd Semester
+CSE2A02,C103,2026-27 Odd Semester
+CSE2A02,C104,2026-27 Odd Semester
+CSE2A02,C105,2026-27 Odd Semester
+CSE2A02,X401,2026-27 Odd Semester
+CSE2A02,X403,2026-27 Odd Semester
+CSE2A03,C101,2026-27 Odd Semester
+CSE2A03,C102,2026-27 Odd Semester
+CSE2A03,C103,2026-27 Odd Semester
+CSE2A03,C104,2026-27 Odd Semester
+CSE2A03,C105,2026-27 Odd Semester
+CSE2A03,X401,2026-27 Odd Semester
+CSE2A03,X403,2026-27 Odd Semester
+CSE2A04,C101,2026-27 Odd Semester
+CSE2A04,C102,2026-27 Odd Semester
+CSE2A04,C103,2026-27 Odd Semester
+CSE2A04,C104,2026-27 Odd Semester
+CSE2A04,C105,2026-27 Odd Semester
+CSE2A04,X401,2026-27 Odd Semester
+CSE2A04,X403,2026-27 Odd Semester
+CSE2A05,C101,2026-27 Odd Semester
+CSE2A05,C102,2026-27 Odd Semester
+CSE2A05,C103,2026-27 Odd Semester
+CSE2A05,C104,2026-27 Odd Semester
+CSE2A05,C105,2026-27 Odd Semester
+CSE2A05,X401,2026-27 Odd Semester
+CSE2A05,X403,2026-27 Odd Semester
+CSE2A06,C101,2026-27 Odd Semester
+CSE2A06,C102,2026-27 Odd Semester
+CSE2A06,C103,2026-27 Odd Semester
+CSE2A06,C104,2026-27 Odd Semester
+CSE2A06,C105,2026-27 Odd Semester
+CSE2A06,X401,2026-27 Odd Semester
+CSE2A06,X403,2026-27 Odd Semester
+CSE2A07,C101,2026-27 Odd Semester
+CSE2A07,C102,2026-27 Odd Semester
+CSE2A07,C103,2026-27 Odd Semester
+CSE2A07,C104,2026-27 Odd Semester
+CSE2A07,C105,2026-27 Odd Semester
+CSE2A07,X401,2026-27 Odd Semester
+CSE2A07,X403,2026-27 Odd Semester
+CSE2A08,C101,2026-27 Odd Semester
+CSE2A08,C102,2026-27 Odd Semester
+CSE2A08,C103,2026-27 Odd Semester
+CSE2A08,C104,2026-27 Odd Semester
+CSE2A08,C105,2026-27 Odd Semester
+CSE2A08,I303,2026-27 Odd Semester
+CSE2A08,X403,2026-27 Odd Semester
+CSE2A09,C101,2026-27 Odd Semester
+CSE2A09,C102,2026-27 Odd Semester
+CSE2A09,C103,2026-27 Odd Semester
+CSE2A09,C104,2026-27 Odd Semester
+CSE2A09,C105,2026-27 Odd Semester
+CSE2A09,I303,2026-27 Odd Semester
+CSE2A09,X403,2026-27 Odd Semester
+CSE2A10,C101,2026-27 Odd Semester
+CSE2A10,C102,2026-27 Odd Semester
+CSE2A10,C103,2026-27 Odd Semester
+CSE2A10,C104,2026-27 Odd Semester
+CSE2A10,C105,2026-27 Odd Semester
+CSE2A10,I303,2026-27 Odd Semester
+CSE2A10,X403,2026-27 Odd Semester
+CSE2A11,C101,2026-27 Odd Semester
+CSE2A11,C102,2026-27 Odd Semester
+CSE2A11,C103,2026-27 Odd Semester
+CSE2A11,C104,2026-27 Odd Semester
+CSE2A11,C105,2026-27 Odd Semester
+CSE2A11,I303,2026-27 Odd Semester
+CSE2A11,X403,2026-27 Odd Semester
+CSE2A12,C101,2026-27 Odd Semester
+CSE2A12,C102,2026-27 Odd Semester
+CSE2A12,C103,2026-27 Odd Semester
+CSE2A12,C104,2026-27 Odd Semester
+CSE2A12,C105,2026-27 Odd Semester
+CSE2A12,I303,2026-27 Odd Semester
+CSE2A12,X403,2026-27 Odd Semester
+CSE2A13,C101,2026-27 Odd Semester
+CSE2A13,C102,2026-27 Odd Semester
+CSE2A13,C103,2026-27 Odd Semester
+CSE2A13,C104,2026-27 Odd Semester
+CSE2A13,C105,2026-27 Odd Semester
+CSE2A13,I303,2026-27 Odd Semester
+CSE2A13,X403,2026-27 Odd Semester
+CSE2A14,C101,2026-27 Odd Semester
+CSE2A14,C102,2026-27 Odd Semester
+CSE2A14,C103,2026-27 Odd Semester
+CSE2A14,C104,2026-27 Odd Semester
+CSE2A14,C105,2026-27 Odd Semester
+CSE2A14,I303,2026-27 Odd Semester
+CSE2A14,X403,2026-27 Odd Semester
+CSE2A15,C101,2026-27 Odd Semester
+CSE2A15,C102,2026-27 Odd Semester
+CSE2A15,C103,2026-27 Odd Semester
+CSE2A15,C104,2026-27 Odd Semester
+CSE2A15,C105,2026-27 Odd Semester
+CSE2A15,I303,2026-27 Odd Semester
+CSE2A15,X403,2026-27 Odd Semester
+CSE2B01,C101,2026-27 Odd Semester
+CSE2B01,C102,2026-27 Odd Semester
+CSE2B01,C103,2026-27 Odd Semester
+CSE2B01,C104,2026-27 Odd Semester
+CSE2B01,C105,2026-27 Odd Semester
+CSE2B01,X401,2026-27 Odd Semester
+CSE2B01,X403,2026-27 Odd Semester
+CSE2B02,C101,2026-27 Odd Semester
+CSE2B02,C102,2026-27 Odd Semester
+CSE2B02,C103,2026-27 Odd Semester
+CSE2B02,C104,2026-27 Odd Semester
+CSE2B02,C105,2026-27 Odd Semester
+CSE2B02,X401,2026-27 Odd Semester
+CSE2B02,X403,2026-27 Odd Semester
+CSE2B03,C101,2026-27 Odd Semester
+CSE2B03,C102,2026-27 Odd Semester
+CSE2B03,C103,2026-27 Odd Semester
+CSE2B03,C104,2026-27 Odd Semester
+CSE2B03,C105,2026-27 Odd Semester
+CSE2B03,X401,2026-27 Odd Semester
+CSE2B03,X403,2026-27 Odd Semester
+CSE2B04,C101,2026-27 Odd Semester
+CSE2B04,C102,2026-27 Odd Semester
+CSE2B04,C103,2026-27 Odd Semester
+CSE2B04,C104,2026-27 Odd Semester
+CSE2B04,C105,2026-27 Odd Semester
+CSE2B04,X401,2026-27 Odd Semester
+CSE2B04,X403,2026-27 Odd Semester
+CSE2B05,C101,2026-27 Odd Semester
+CSE2B05,C102,2026-27 Odd Semester
+CSE2B05,C103,2026-27 Odd Semester
+CSE2B05,C104,2026-27 Odd Semester
+CSE2B05,C105,2026-27 Odd Semester
+CSE2B05,X401,2026-27 Odd Semester
+CSE2B05,X403,2026-27 Odd Semester
+CSE2B06,C101,2026-27 Odd Semester
+CSE2B06,C102,2026-27 Odd Semester
+CSE2B06,C103,2026-27 Odd Semester
+CSE2B06,C104,2026-27 Odd Semester
+CSE2B06,C105,2026-27 Odd Semester
+CSE2B06,X401,2026-27 Odd Semester
+CSE2B06,X403,2026-27 Odd Semester
+CSE2B07,C101,2026-27 Odd Semester
+CSE2B07,C102,2026-27 Odd Semester
+CSE2B07,C103,2026-27 Odd Semester
+CSE2B07,C104,2026-27 Odd Semester
+CSE2B07,C105,2026-27 Odd Semester
+CSE2B07,X401,2026-27 Odd Semester
+CSE2B07,X403,2026-27 Odd Semester
+CSE2B08,C101,2026-27 Odd Semester
+CSE2B08,C102,2026-27 Odd Semester
+CSE2B08,C103,2026-27 Odd Semester
+CSE2B08,C104,2026-27 Odd Semester
+CSE2B08,C105,2026-27 Odd Semester
+CSE2B08,I303,2026-27 Odd Semester
+CSE2B08,X403,2026-27 Odd Semester
+CSE2B09,C101,2026-27 Odd Semester
+CSE2B09,C102,2026-27 Odd Semester
+CSE2B09,C103,2026-27 Odd Semester
+CSE2B09,C104,2026-27 Odd Semester
+CSE2B09,C105,2026-27 Odd Semester
+CSE2B09,I303,2026-27 Odd Semester
+CSE2B09,X403,2026-27 Odd Semester
+CSE2B10,C101,2026-27 Odd Semester
+CSE2B10,C102,2026-27 Odd Semester
+CSE2B10,C103,2026-27 Odd Semester
+CSE2B10,C104,2026-27 Odd Semester
+CSE2B10,C105,2026-27 Odd Semester
+CSE2B10,I303,2026-27 Odd Semester
+CSE2B10,X403,2026-27 Odd Semester
+CSE2B11,C101,2026-27 Odd Semester
+CSE2B11,C102,2026-27 Odd Semester
+CSE2B11,C103,2026-27 Odd Semester
+CSE2B11,C104,2026-27 Odd Semester
+CSE2B11,C105,2026-27 Odd Semester
+CSE2B11,I303,2026-27 Odd Semester
+CSE2B11,X403,2026-27 Odd Semester
+CSE2B12,C101,2026-27 Odd Semester
+CSE2B12,C102,2026-27 Odd Semester
+CSE2B12,C103,2026-27 Odd Semester
+CSE2B12,C104,2026-27 Odd Semester
+CSE2B12,C105,2026-27 Odd Semester
+CSE2B12,I303,2026-27 Odd Semester
+CSE2B12,X403,2026-27 Odd Semester
+CSE2B13,C101,2026-27 Odd Semester
+CSE2B13,C102,2026-27 Odd Semester
+CSE2B13,C103,2026-27 Odd Semester
+CSE2B13,C104,2026-27 Odd Semester
+CSE2B13,C105,2026-27 Odd Semester
+CSE2B13,I303,2026-27 Odd Semester
+CSE2B13,X403,2026-27 Odd Semester
+CSE2B14,C101,2026-27 Odd Semester
+CSE2B14,C102,2026-27 Odd Semester
+CSE2B14,C103,2026-27 Odd Semester
+CSE2B14,C104,2026-27 Odd Semester
+CSE2B14,C105,2026-27 Odd Semester
+CSE2B14,I303,2026-27 Odd Semester
+CSE2B14,X403,2026-27 Odd Semester
+CSE2B15,C101,2026-27 Odd Semester
+CSE2B15,C102,2026-27 Odd Semester
+CSE2B15,C103,2026-27 Odd Semester
+CSE2B15,C104,2026-27 Odd Semester
+CSE2B15,C105,2026-27 Odd Semester
+CSE2B15,I303,2026-27 Odd Semester
+CSE2B15,X403,2026-27 Odd Semester
+ECE2A01,E201,2026-27 Odd Semester
+ECE2A01,E202,2026-27 Odd Semester
+ECE2A01,E203,2026-27 Odd Semester
+ECE2A01,E204,2026-27 Odd Semester
+ECE2A01,X402,2026-27 Odd Semester
+ECE2A01,X403,2026-27 Odd Semester
+ECE2A02,E201,2026-27 Odd Semester
+ECE2A02,E202,2026-27 Odd Semester
+ECE2A02,E203,2026-27 Odd Semester
+ECE2A02,E204,2026-27 Odd Semester
+ECE2A02,X402,2026-27 Odd Semester
+ECE2A02,X403,2026-27 Odd Semester
+ECE2A03,E201,2026-27 Odd Semester
+ECE2A03,E202,2026-27 Odd Semester
+ECE2A03,E203,2026-27 Odd Semester
+ECE2A03,E204,2026-27 Odd Semester
+ECE2A03,X402,2026-27 Odd Semester
+ECE2A03,X403,2026-27 Odd Semester
+ECE2A04,E201,2026-27 Odd Semester
+ECE2A04,E202,2026-27 Odd Semester
+ECE2A04,E203,2026-27 Odd Semester
+ECE2A04,E204,2026-27 Odd Semester
+ECE2A04,X402,2026-27 Odd Semester
+ECE2A04,X403,2026-27 Odd Semester
+ECE2A05,E201,2026-27 Odd Semester
+ECE2A05,E202,2026-27 Odd Semester
+ECE2A05,E203,2026-27 Odd Semester
+ECE2A05,E204,2026-27 Odd Semester
+ECE2A05,X402,2026-27 Odd Semester
+ECE2A05,X403,2026-27 Odd Semester
+ECE2A06,E201,2026-27 Odd Semester
+ECE2A06,E202,2026-27 Odd Semester
+ECE2A06,E203,2026-27 Odd Semester
+ECE2A06,E204,2026-27 Odd Semester
+ECE2A06,X402,2026-27 Odd Semester
+ECE2A06,X403,2026-27 Odd Semester
+ECE2A07,E201,2026-27 Odd Semester
+ECE2A07,E202,2026-27 Odd Semester
+ECE2A07,E203,2026-27 Odd Semester
+ECE2A07,E204,2026-27 Odd Semester
+ECE2A07,X402,2026-27 Odd Semester
+ECE2A07,X403,2026-27 Odd Semester
+ECE2A08,E201,2026-27 Odd Semester
+ECE2A08,E202,2026-27 Odd Semester
+ECE2A08,E203,2026-27 Odd Semester
+ECE2A08,E204,2026-27 Odd Semester
+ECE2A08,X401,2026-27 Odd Semester
+ECE2A08,X403,2026-27 Odd Semester
+ECE2A09,E201,2026-27 Odd Semester
+ECE2A09,E202,2026-27 Odd Semester
+ECE2A09,E203,2026-27 Odd Semester
+ECE2A09,E204,2026-27 Odd Semester
+ECE2A09,X401,2026-27 Odd Semester
+ECE2A09,X403,2026-27 Odd Semester
+ECE2A10,E201,2026-27 Odd Semester
+ECE2A10,E202,2026-27 Odd Semester
+ECE2A10,E203,2026-27 Odd Semester
+ECE2A10,E204,2026-27 Odd Semester
+ECE2A10,X401,2026-27 Odd Semester
+ECE2A10,X403,2026-27 Odd Semester
+ECE2A11,E201,2026-27 Odd Semester
+ECE2A11,E202,2026-27 Odd Semester
+ECE2A11,E203,2026-27 Odd Semester
+ECE2A11,E204,2026-27 Odd Semester
+ECE2A11,X401,2026-27 Odd Semester
+ECE2A11,X403,2026-27 Odd Semester
+ECE2A12,E201,2026-27 Odd Semester
+ECE2A12,E202,2026-27 Odd Semester
+ECE2A12,E203,2026-27 Odd Semester
+ECE2A12,E204,2026-27 Odd Semester
+ECE2A12,X401,2026-27 Odd Semester
+ECE2A12,X403,2026-27 Odd Semester
+ECE2A13,E201,2026-27 Odd Semester
+ECE2A13,E202,2026-27 Odd Semester
+ECE2A13,E203,2026-27 Odd Semester
+ECE2A13,E204,2026-27 Odd Semester
+ECE2A13,X401,2026-27 Odd Semester
+ECE2A13,X403,2026-27 Odd Semester
+ECE2A14,E201,2026-27 Odd Semester
+ECE2A14,E202,2026-27 Odd Semester
+ECE2A14,E203,2026-27 Odd Semester
+ECE2A14,E204,2026-27 Odd Semester
+ECE2A14,X401,2026-27 Odd Semester
+ECE2A14,X403,2026-27 Odd Semester
+ECE2A15,E201,2026-27 Odd Semester
+ECE2A15,E202,2026-27 Odd Semester
+ECE2A15,E203,2026-27 Odd Semester
+ECE2A15,E204,2026-27 Odd Semester
+ECE2A15,X401,2026-27 Odd Semester
+ECE2A15,X403,2026-27 Odd Semester
+IT2A01,I301,2026-27 Odd Semester
+IT2A01,I302,2026-27 Odd Semester
+IT2A01,I303,2026-27 Odd Semester
+IT2A01,I304,2026-27 Odd Semester
+IT2A01,X401,2026-27 Odd Semester
+IT2A01,X404,2026-27 Odd Semester
+IT2A02,I301,2026-27 Odd Semester
+IT2A02,I302,2026-27 Odd Semester
+IT2A02,I303,2026-27 Odd Semester
+IT2A02,I304,2026-27 Odd Semester
+IT2A02,X401,2026-27 Odd Semester
+IT2A02,X404,2026-27 Odd Semester
+IT2A03,I301,2026-27 Odd Semester
+IT2A03,I302,2026-27 Odd Semester
+IT2A03,I303,2026-27 Odd Semester
+IT2A03,I304,2026-27 Odd Semester
+IT2A03,X401,2026-27 Odd Semester
+IT2A03,X404,2026-27 Odd Semester
+IT2A04,I301,2026-27 Odd Semester
+IT2A04,I302,2026-27 Odd Semester
+IT2A04,I303,2026-27 Odd Semester
+IT2A04,I304,2026-27 Odd Semester
+IT2A04,X401,2026-27 Odd Semester
+IT2A04,X404,2026-27 Odd Semester
+IT2A05,I301,2026-27 Odd Semester
+IT2A05,I302,2026-27 Odd Semester
+IT2A05,I303,2026-27 Odd Semester
+IT2A05,I304,2026-27 Odd Semester
+IT2A05,X401,2026-27 Odd Semester
+IT2A05,X404,2026-27 Odd Semester
+IT2A06,I301,2026-27 Odd Semester
+IT2A06,I302,2026-27 Odd Semester
+IT2A06,I303,2026-27 Odd Semester
+IT2A06,I304,2026-27 Odd Semester
+IT2A06,X401,2026-27 Odd Semester
+IT2A06,X404,2026-27 Odd Semester
+IT2A07,I301,2026-27 Odd Semester
+IT2A07,I302,2026-27 Odd Semester
+IT2A07,I303,2026-27 Odd Semester
+IT2A07,I304,2026-27 Odd Semester
+IT2A07,X401,2026-27 Odd Semester
+IT2A07,X404,2026-27 Odd Semester
+IT2A08,I301,2026-27 Odd Semester
+IT2A08,I302,2026-27 Odd Semester
+IT2A08,I303,2026-27 Odd Semester
+IT2A08,I304,2026-27 Odd Semester
+IT2A08,X402,2026-27 Odd Semester
+IT2A08,X404,2026-27 Odd Semester
+IT2A09,I301,2026-27 Odd Semester
+IT2A09,I302,2026-27 Odd Semester
+IT2A09,I303,2026-27 Odd Semester
+IT2A09,I304,2026-27 Odd Semester
+IT2A09,X402,2026-27 Odd Semester
+IT2A09,X404,2026-27 Odd Semester
+IT2A10,I301,2026-27 Odd Semester
+IT2A10,I302,2026-27 Odd Semester
+IT2A10,I303,2026-27 Odd Semester
+IT2A10,I304,2026-27 Odd Semester
+IT2A10,X402,2026-27 Odd Semester
+IT2A10,X404,2026-27 Odd Semester
+IT2A11,I301,2026-27 Odd Semester
+IT2A11,I302,2026-27 Odd Semester
+IT2A11,I303,2026-27 Odd Semester
+IT2A11,I304,2026-27 Odd Semester
+IT2A11,X402,2026-27 Odd Semester
+IT2A11,X404,2026-27 Odd Semester
+IT2A12,I301,2026-27 Odd Semester
+IT2A12,I302,2026-27 Odd Semester
+IT2A12,I303,2026-27 Odd Semester
+IT2A12,I304,2026-27 Odd Semester
+IT2A12,X402,2026-27 Odd Semester
+IT2A12,X404,2026-27 Odd Semester
+IT2A13,I301,2026-27 Odd Semester
+IT2A13,I302,2026-27 Odd Semester
+IT2A13,I303,2026-27 Odd Semester
+IT2A13,I304,2026-27 Odd Semester
+IT2A13,X402,2026-27 Odd Semester
+IT2A13,X404,2026-27 Odd Semester
+IT2A14,I301,2026-27 Odd Semester
+IT2A14,I302,2026-27 Odd Semester
+IT2A14,I303,2026-27 Odd Semester
+IT2A14,I304,2026-27 Odd Semester
+IT2A14,X402,2026-27 Odd Semester
+IT2A14,X404,2026-27 Odd Semester
+IT2A15,I301,2026-27 Odd Semester
+IT2A15,I302,2026-27 Odd Semester
+IT2A15,I303,2026-27 Odd Semester
+IT2A15,I304,2026-27 Odd Semester
+IT2A15,X402,2026-27 Odd Semester
+IT2A15,X404,2026-27 Odd Semester
+time_slot_id,day,period_id,period_number,start_time,end_time,is_teaching_slot
+MON_P1,Monday,P1,1,09:00,09:50,1
+MON_P2,Monday,P2,2,09:50,10:40,1
+MON_P3,Monday,P3,3,10:50,11:40,1
+MON_P4,Monday,P4,4,11:40,12:30,1
+MON_P5,Monday,P5,5,13:30,14:20,1
+MON_P6,Monday,P6,6,14:20,15:10,1
+TUE_P1,Tuesday,P1,1,09:00,09:50,1
+TUE_P2,Tuesday,P2,2,09:50,10:40,1
+TUE_P3,Tuesday,P3,3,10:50,11:40,1
+TUE_P4,Tuesday,P4,4,11:40,12:30,1
+TUE_P5,Tuesday,P5,5,13:30,14:20,1
+TUE_P6,Tuesday,P6,6,14:20,15:10,1
+WED_P1,Wednesday,P1,1,09:00,09:50,1
+WED_P2,Wednesday,P2,2,09:50,10:40,1
+WED_P3,Wednesday,P3,3,10:50,11:40,1
+WED_P4,Wednesday,P4,4,11:40,12:30,1
+WED_P5,Wednesday,P5,5,13:30,14:20,1
+WED_P6,Wednesday,P6,6,14:20,15:10,1
+THU_P1,Thursday,P1,1,09:00,09:50,1
+THU_P2,Thursday,P2,2,09:50,10:40,1
+THU_P3,Thursday,P3,3,10:50,11:40,1
+THU_P4,Thursday,P4,4,11:40,12:30,1
+THU_P5,Thursday,P5,5,13:30,14:20,1
+THU_P6,Thursday,P6,6,14:20,15:10,1
+FRI_P1,Friday,P1,1,09:00,09:50,1
+FRI_P2,Friday,P2,2,09:50,10:40,1
+FRI_P3,Friday,P3,3,10:50,11:40,1
+FRI_P4,Friday,P4,4,11:40,12:30,1
+FRI_P5,Friday,P5,5,13:30,14:20,1
+FRI_P6,Friday,P6,6,14:20,15:10,1
+constraint_name,constraint_value,constraint_type,description
+working_days,"Monday,Tuesday,Wednesday,Thursday,Friday",Hard,Institution working days
+periods_per_day,6,Hard,Maximum teaching periods per day
+max_daily_periods_per_student,6,Hard,Student daily period limit
+max_consecutive_periods_faculty,3,Soft,Prefer no more than 3 consecutive periods
+min_break_periods,1,Hard,Lunch break is not a teaching slot
+balance_faculty_workload,true,Soft,Distribute faculty sessions across the week
+minimize_student_gaps,true,Soft,Reduce idle gaps in student schedules
+classroom_capacity_check,true,Hard,Room capacity must meet enrolment
+faculty_availability_check,true,Hard,Only schedule faculty in available slots
+student_conflict_check,true,Hard,No enrolled student can have overlapping courses
+room_type_check,true,Hard,Required room type must match assigned room
+solver_time_limit_seconds,30,Setting,Maximum CP-SAT solver time
+soft_workload_weight,5,Weight,Weight for faculty workload balance
+soft_student_gap_weight,8,Weight,Weight for reducing student gaps
+soft_room_utilization_weight,3,Weight,Weight for room utilization
